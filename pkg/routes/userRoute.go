@@ -6,7 +6,7 @@ import (
 	"gokul.go/pkg/api/middleware"
 )
 
-func UserRoutes(engine *gin.RouterGroup, userHandler *handler.UserHandler, otpHandler *handler.OtpHandler, inventoryHandler *handler.InventoryHandler, cartHandler *handler.CartHandler, orderHandler *handler.OrdeHandler) {
+func UserRoutes(engine *gin.RouterGroup, userHandler *handler.UserHandler, otpHandler *handler.OtpHandler, inventoryHandler *handler.InventoryHandler, cartHandler *handler.CartHandler, orderHandler *handler.OrdeHandler, paymentHandler *handler.PaymentHandler) {
 	engine.POST("/signup", userHandler.UserSignUp)
 	engine.POST("/login", userHandler.LoginHandler)
 	engine.GET("/forgot-password", userHandler.ForgotPasswordSend)
@@ -14,6 +14,11 @@ func UserRoutes(engine *gin.RouterGroup, userHandler *handler.UserHandler, otpHa
 
 	engine.POST("/otplogin", otpHandler.SendOTP)
 	engine.POST("/verifyotp", otpHandler.VerifyOTP)
+	payment := engine.Group("/payment")
+	{
+		payment.GET("/razorpay", paymentHandler.MakePaymentRazorPay)
+		payment.GET("/update_status", paymentHandler.VerifyPayment)
+	}
 
 	engine.Use(middleware.UserAuthMiddleware)
 

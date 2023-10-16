@@ -6,7 +6,7 @@ import (
 	"gokul.go/pkg/api/middleware"
 )
 
-func AdminRoutes(engine *gin.RouterGroup, adminHandler *handler.AdminHandler, inventoryHandler *handler.InventoryHandler, categoryHandler *handler.CategoryHandler, orderhandler *handler.OrdeHandler) {
+func AdminRoutes(engine *gin.RouterGroup, adminHandler *handler.AdminHandler, inventoryHandler *handler.InventoryHandler, categoryHandler *handler.CategoryHandler, orderhandler *handler.OrdeHandler, reporthandler handler.SalesHandler) {
 	engine.POST("/adminlogin", adminHandler.LoginHandler)
 	engine.Use(middleware.AdminAuthMiddleware)
 	{
@@ -33,6 +33,10 @@ func AdminRoutes(engine *gin.RouterGroup, adminHandler *handler.AdminHandler, in
 		{
 			orders.GET("/", orderhandler.AdminOrders)
 			orders.PUT("/edit/status", orderhandler.EditOrderStatus)
+		}
+		sales := engine.Group("/report")
+		{
+			sales.GET("monthly", reporthandler.GetMonthlySalesReport)
 		}
 
 	}

@@ -30,8 +30,8 @@ func (i *orderRepository) OrderItems(userid, addressid, payementid int, total fl
 	var id int
 
 	query :=
-		`INSERT INTO orders (user_id,address_id,payment_method_id,final_price)
-	VALUES (? ,? ,?, ?) RETURNING id`
+		`INSERT INTO orders (created_at,user_id,address_id,payment_method_id,final_price)
+	VALUES (NOW(),? ,? ,?, ?) RETURNING id`
 
 	err := i.DB.Raw(query, userid, addressid, payementid, total).Scan(&id).Error
 	if err != nil {

@@ -101,6 +101,9 @@ func (u *userUseCase) LoginHandler(user models.UserLoign) (models.TokenUsers, er
 	//Get the user details in order to check the password,in this case (the same function can be used for future)
 
 	user_details, err := u.userRepo.FindUserByEmail(user)
+
+	//fmt.Println("user details", user_details)
+	
 	if err != nil {
 		return models.TokenUsers{}, err
 	}
@@ -113,7 +116,8 @@ func (u *userUseCase) LoginHandler(user models.UserLoign) (models.TokenUsers, er
 
 	var userDetails models.UserDeatilsResponse
 
-	err = copier.Copy(&userDetails, &userDetails)
+	err = copier.Copy(&userDetails, &user_details)
+	fmt.Println("user details ", userDetails)
 	if err != nil {
 		return models.TokenUsers{}, err
 	}

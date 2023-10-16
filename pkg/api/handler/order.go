@@ -53,7 +53,7 @@ func (i *OrdeHandler) OrderItemsFromCart(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, errRes)
 		return
 	}
-	successRes := response.ClientResponse(http.StatusOK, "successfully got all record", nil, nil)
+	successRes := response.ClientResponse(http.StatusOK, "successfully made the order", nil, nil)
 	c.JSON(http.StatusOK, successRes)
 }
 func (i *OrdeHandler) CancelOrder(c *gin.Context) {

@@ -34,7 +34,7 @@ func (p *paymentRepositoy) FindPrice(order_id int) (float64, error) {
 func (p *paymentRepositoy) UpdatePaymentDetails(OrderID, paymentID, razorID string) error {
 	status := "PAID"
 
-	if err := p.DB.Exec(`UPDATE orders SET payment_status =$1 WHERE id =-$2`, status, OrderID).Error; err != nil {
+	if err := p.DB.Exec(`UPDATE orders SET payment_status =$1 WHERE id =$2`, status, OrderID).Error; err != nil {
 		return err
 	}
 	return nil
