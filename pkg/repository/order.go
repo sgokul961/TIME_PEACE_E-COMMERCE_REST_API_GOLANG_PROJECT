@@ -82,3 +82,76 @@ func (i *orderRepository) EditOrderStatus(status string, id int) error {
 	return nil
 
 }
+
+// --------this is my latest code----------//
+func (or *orderRepository) GetOrderDetails(orderID uint) (domain.Order, error) {
+	var order domain.Order
+
+	if err := or.DB.Raw(`
+		SELECT
+			o.id, o.user_id, o.address_id, o.paymentmethod_id, o.coupon_used, o.final_price, o.order_status, o.payment_status,
+			oi.id as order_item_id, oi.inventory_id, oi.quantity, oi.total_price as order_item_total_price
+		FROM orders o
+		JOIN order_items oi ON o.id = oi.order_id
+		WHERE o.id = ?;
+	`, orderID).Scan(&order).Error; err != nil {
+		return domain.Order{}, err
+	}
+
+	return order, nil
+
+	// if err := or.DB.Where("id=?", orderID).Preload("OrderItems").First(&order).Error; err != nil {
+	// 	return domain.Order{}, err
+	// }
+	// return order, nil
+
+}
+
+// //--------------TO GET INVOICE---------------//
+
+func (or *orderRepository) GetOrderDetailsByID(orderID uint) (domain.UserorderResponse, error) {
+	// var order domain.Order
+
+	// if err := or.DB.Preload("OrderItems").Preload("PaymentMethod").Preload("Address").First(&order, orderID).Error; err != nil {
+	// 	return domain.Order{}, err
+	// }
+	// return order, nil
+
+	var userOrder domain.UserorderResponse
+
+	query := `SELECT o.user_id,
+	u.name,
+	u.email,
+	u.phone,
+	o.address_id,
+	o.payment_method_id,
+	p.payment_name,  
+	o.final_price,
+	o.order_status,
+	o.payment_status 
+	FROM orders 
+	AS o 
+	LEFT JOIN users 
+	AS u ON o.user_id=u.id 
+	LEFT JOIN payment_methods 
+	AS p ON O.payment_method_id=p.id 
+	WHERE o.id=?
+	`
+	err := or.DB.Raw(query, orderID).Scan(&userOrder).Error
+	if err != nil {
+		return domain.UserorderResponse{}, err
+	}
+	return userOrder, nil
+}
+
+func (or *orderRepository) GetOrdersByStatus(status string) ([]domain.Order, error) {
+
+	var orders []domain.Order
+	if err := or.DB.Where("order_status =?", status).Preload("OrderItems").Preload("Address").Find(&orders).Error; err != nil {
+		return nil, err
+	}
+	return orders, nil
+
+}
+
+//---------------------------------------------------------------------------------------//

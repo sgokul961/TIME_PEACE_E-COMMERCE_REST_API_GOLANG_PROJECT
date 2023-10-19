@@ -20,6 +20,16 @@ func NewAdminHandler(usecase usecaseInterfaces.AdminUseCase) *AdminHandler {
 	return &AdminHandler{
 		adminUseCase: usecase}
 }
+
+// @Summary		Admin Login
+// @Description	Login handler for timepeace admins
+// @Tags			Admin
+// @Accept			json
+// @Produce		json
+// @Param			admin	body		models.AdminLogin	true	"Admin login details"
+// @Success		200		{object}	response.Response{}
+// @Failure		500		{object}	response.Response{}
+// @Router			/admin/adminlogin [post]
 func (ad *AdminHandler) LoginHandler(c *gin.Context) {
 
 	var adminDetails models.AdminLogin

@@ -19,24 +19,23 @@ func NewInventoryRepository(DB *gorm.DB) interfaces.InventoryRepository {
 	return &inventoryRepository{DB: DB}
 
 }
-func (i *inventoryRepository) AddInventory(inventory domain.Inventories) (models.InventoryResponse, error) {
+func (i *inventoryRepository) AddInventory(inventory models.AddInventories, url string) (models.InventoryResponse, error) {
 
-	var id uint
-	query := `INSERT INTO inventories (category_id,product_name,size,stock,price)
-	VALUES(?, ?, ?, ?, ?)
-	RETURNING id`
+	//var id uint
+	query := `INSERT INTO inventories (category_id,product_name,size,stock,price,image)
+	VALUES(?, ?, ?, ?, ?, ?);`
 
-	i.DB.Raw(query, inventory.CategoryID, inventory.ProductName, inventory.Size, inventory.Stock, inventory.Price).Scan(&id)
+	i.DB.Exec(query, inventory.CategoryID, inventory.ProductName, inventory.Size, inventory.Stock, inventory.Price, url)
 
 	var InventoryResponse models.InventoryResponse
 
-	i.DB.Raw(`SELECT 
-	    id as product_id,
-	    stock 
-	FROM 
-	    inventories  
-	WHERE 
-	    id=?`, id).Scan(&InventoryResponse)
+	// i.DB.Raw(`SELECT
+	//     id as product_id,
+	//     stock
+	// FROM
+	//     inventories
+	// WHERE
+	//     id=?`, id).Scan(&InventoryResponse)
 
 	return InventoryResponse, nil
 

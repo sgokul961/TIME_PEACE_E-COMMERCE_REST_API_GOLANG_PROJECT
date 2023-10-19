@@ -9,6 +9,7 @@ import (
 	"gokul.go/pkg/api/handler"
 	"gokul.go/pkg/config"
 	"gokul.go/pkg/db"
+	helper "gokul.go/pkg/helper"
 	"gokul.go/pkg/repository"
 	"gokul.go/pkg/usecase"
 )
@@ -50,6 +51,8 @@ func InitializeAPI(cfg config.Config) (*http.ServerHTTP, error) {
 		repository.NewSalesRepository,
 		usecase.NewSalesUseCase,
 		handler.NewSalesHandler,
+
+		helper.NewHelper,
 
 		http.NewServerHTTP,
 	)

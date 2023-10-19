@@ -64,6 +64,7 @@ func UserRoutes(engine *gin.RouterGroup, userHandler *handler.UserHandler, otpHa
 		checkout := engine.Group("/check-out")
 		{
 			checkout.POST("/order", orderHandler.OrderItemsFromCart)
+			checkout.GET("/invoice", orderHandler.GenerateInvoice)
 		}
 
 	}

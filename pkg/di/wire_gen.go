@@ -11,6 +11,7 @@ import (
 	"gokul.go/pkg/api/handler"
 	"gokul.go/pkg/config"
 	"gokul.go/pkg/db"
+	"gokul.go/pkg/helper"
 	"gokul.go/pkg/repository"
 	"gokul.go/pkg/usecase"
 )
@@ -32,7 +33,8 @@ func InitializeAPI(cfg config.Config) (*http.ServerHTTP, error) {
 	otpUseCase := usecase.NewOtpUseCase(cfg, otpRepository)
 	otpHandler := handler.NewOtpHandler(otpUseCase)
 	inventoryRepository := repository.NewInventoryRepository(gormDB)
-	inventoryUseCase := usecase.NewInventoryUseCase(inventoryRepository)
+	interfacesHelper := helper.NewHelper(cfg)
+	inventoryUseCase := usecase.NewInventoryUseCase(inventoryRepository, interfacesHelper)
 	inventoryHandler := handler.NewInventoryHandler(inventoryUseCase)
 	categoryRepository := repository.NewCategoryRepository(gormDB)
 	categoryUseCase := usecase.NewCategoryUseCase(categoryRepository)

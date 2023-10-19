@@ -15,4 +15,10 @@ type OrderRepository interface {
 
 	AddOrderProducts(order_id int, cart []models.GetCart) error
 	CancelOrder(id int) error
+
+	//--------//my code
+	GetOrderDetails(orderID uint) (domain.Order, error)
+	GetOrderDetailsByID(orderID uint) (domain.UserorderResponse, error)
+
+	GetOrdersByStatus(status string) ([]domain.Order, error)
 }

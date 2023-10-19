@@ -1,6 +1,9 @@
 package usecaseInterfaces
 
-import "gokul.go/pkg/domain"
+import (
+	"github.com/jung-kurt/gofpdf"
+	"gokul.go/pkg/domain"
+)
 
 type OrderUseCase interface {
 	GetOrders(id int) ([]domain.Order, error)
@@ -8,4 +11,5 @@ type OrderUseCase interface {
 	CancelOrder(id int) error
 	AdminOrders() (domain.AdminOrdersResponse, error)
 	EditOrderStatus(status string, id int) error
+	GenerateInvoice(orderID uint) (*gofpdf.Fpdf, error)
 }

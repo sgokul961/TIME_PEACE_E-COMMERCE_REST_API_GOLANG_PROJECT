@@ -6,7 +6,7 @@ import (
 
 	"github.com/jinzhu/copier"
 	"gokul.go/pkg/config"
-	"gokul.go/pkg/helper"
+	helper_interface "gokul.go/pkg/helper/interface"
 	interfaces "gokul.go/pkg/repository/interface"
 	"gokul.go/pkg/usecase/usecaseInterfaces"
 	"gokul.go/pkg/utils/models"
@@ -15,6 +15,7 @@ import (
 type otpUseCase struct {
 	cfg           config.Config
 	otpRepository interfaces.OtpRepository
+	helper        helper_interface.Helper
 }
 
 // // VarifyOtp implements usecaseInterfaces.OtpUseCase.
@@ -35,13 +36,13 @@ func (ot *otpUseCase) SendOTP(phone string) error {
 	if !ok {
 		return errors.New("user does not exist")
 	}
-	helper.TwilioSetup(ot.cfg.ACCOUNTSID, ot.cfg.AUTHTOKEN)
+	ot.helper.TwilioSetup(ot.cfg.ACCOUNTSID, ot.cfg.AUTHTOKEN)
 
 	fmt.Println("accsid:", ot.cfg.ACCOUNTSID)
 
 	fmt.Println("auth", ot.cfg.AUTHTOKEN)
 
-	_, err := helper.TwilioSendOTP(phone, ot.cfg.SERVICESID)
+	_, err := ot.helper.TwilioSendOTP(phone, ot.cfg.SERVICESID)
 	if err != nil {
 		return errors.New("error occured while genarating otp")
 	}
@@ -50,8 +51,8 @@ func (ot *otpUseCase) SendOTP(phone string) error {
 }
 func (ot *otpUseCase) VerifyOTP(code models.VarifyData) (models.TokenUsers, error) {
 
-	helper.TwilioSetup(ot.cfg.ACCOUNTSID, ot.cfg.AUTHTOKEN)
-	err := helper.TwilioVerifyOTP(ot.cfg.SERVICESID, code.Code, code.PhoneNumber)
+	ot.helper.TwilioSetup(ot.cfg.ACCOUNTSID, ot.cfg.AUTHTOKEN)
+	err := ot.helper.TwilioVerifyOTP(ot.cfg.SERVICESID, code.Code, code.PhoneNumber)
 	if err != nil {
 		//this guard clause catches the error code runs only until here
 		return models.TokenUsers{}, errors.New("error while verifying")
@@ -65,7 +66,7 @@ func (ot *otpUseCase) VerifyOTP(code models.VarifyData) (models.TokenUsers, erro
 		return models.TokenUsers{}, err
 	}
 
-	tokenString, err := helper.GenerateTokenClients(userDetails)
+	tokenString, err := ot.helper.GenerateTokenClients(userDetails)
 	if err != nil {
 		return models.TokenUsers{}, nil
 	}

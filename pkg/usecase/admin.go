@@ -6,7 +6,7 @@ import (
 
 	"github.com/jinzhu/copier"
 	"gokul.go/pkg/domain"
-	"gokul.go/pkg/helper"
+	helper_interface "gokul.go/pkg/helper/interface"
 	interfaces "gokul.go/pkg/repository/interface"
 	"gokul.go/pkg/usecase/usecaseInterfaces"
 	"gokul.go/pkg/utils/models"
@@ -15,6 +15,7 @@ import (
 
 type adminUseCase struct {
 	AdminRepository interfaces.AdminRepository
+	helper          helper_interface.Helper
 }
 
 func NewAdminUseCase(repo interfaces.AdminRepository) usecaseInterfaces.AdminUseCase {
@@ -48,7 +49,7 @@ func (ad *adminUseCase) LoginHandler(adminDetails models.AdminLogin) (domain.Tok
 	if err != nil {
 		return domain.TokenAdmin{}, err
 	}
-	tokenString, err := helper.GenerateTokenAdmin(adminDetailsResponse)
+	tokenString, err := ad.helper.GenerateTokenAdmin(adminDetailsResponse)
 
 	if err != nil {
 		return domain.TokenAdmin{}, err

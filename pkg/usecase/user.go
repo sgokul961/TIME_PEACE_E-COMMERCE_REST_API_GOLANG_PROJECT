@@ -7,7 +7,7 @@ import (
 	"github.com/jinzhu/copier"
 	"gokul.go/pkg/config"
 	"gokul.go/pkg/domain"
-	"gokul.go/pkg/helper"
+	helper_interface "gokul.go/pkg/helper/interface"
 	interfaces "gokul.go/pkg/repository/interface"
 	"gokul.go/pkg/usecase/usecaseInterfaces"
 	"gokul.go/pkg/utils/models"
@@ -18,6 +18,7 @@ type userUseCase struct {
 	userRepo      interfaces.UserRepository
 	cfg           config.Config
 	otpRepository interfaces.OtpRepository
+	helper        helper_interface.Helper
 }
 
 func NewUserUseCase(repo interfaces.UserRepository, cfg config.Config, otp interfaces.OtpRepository) usecaseInterfaces.UserUseCase {
@@ -63,7 +64,7 @@ func (u *userUseCase) UserSignUp(user models.UserDetails) (models.TokenUsers, er
 
 	//create a jwt token string for the user
 
-	tokenString, err := helper.GenerateTokenClients(userData)
+	tokenString, err := u.helper.GenerateTokenClients(userData)
 	if err != nil {
 		return models.TokenUsers{}, errors.New("could not crate a token due to some internal error")
 
@@ -103,7 +104,7 @@ func (u *userUseCase) LoginHandler(user models.UserLoign) (models.TokenUsers, er
 	user_details, err := u.userRepo.FindUserByEmail(user)
 
 	//fmt.Println("user details", user_details)
-	
+
 	if err != nil {
 		return models.TokenUsers{}, err
 	}
@@ -122,7 +123,7 @@ func (u *userUseCase) LoginHandler(user models.UserLoign) (models.TokenUsers, er
 		return models.TokenUsers{}, err
 	}
 
-	tokenString, err := helper.GenerateTokenClients(userDetails)
+	tokenString, err := u.helper.GenerateTokenClients(userDetails)
 
 	if err != nil {
 		return models.TokenUsers{}, errors.New("could not create token")
@@ -189,11 +190,11 @@ func (i *userUseCase) ForgotPasswordSend(phone string) error {
 		return errors.New("the user does not exist")
 	}
 
-	helper.TwilioSetup(i.cfg.ACCOUNTSID, i.cfg.AUTHTOKEN)
+	i.helper.TwilioSetup(i.cfg.ACCOUNTSID, i.cfg.AUTHTOKEN)
 	fmt.Println("accsid:", i.cfg.ACCOUNTSID)
 	fmt.Println("auth:", i.cfg.AUTHTOKEN)
 
-	_, err := helper.TwilioSendOTP(phone, i.cfg.SERVICESID)
+	_, err := i.helper.TwilioSendOTP(phone, i.cfg.SERVICESID)
 	if err != nil {
 		return errors.New("error occured while genarating OTP")
 
@@ -327,9 +328,9 @@ func (i *userUseCase) UpdateQuantityMinus(id, inventory_id int) error {
 }
 func (i *userUseCase) VarifyForgotPasswordAndChange(model models.ForgotVarify) error {
 
-	helper.TwilioSetup(i.cfg.ACCOUNTSID, i.cfg.AUTHTOKEN)
+	i.helper.TwilioSetup(i.cfg.ACCOUNTSID, i.cfg.AUTHTOKEN)
 
-	err := helper.TwilioVerifyOTP(i.cfg.SERVICESID, model.Otp, model.Phone)
+	err := i.helper.TwilioVerifyOTP(i.cfg.SERVICESID, model.Otp, model.Phone)
 
 	if err != nil {
 		return errors.New("error while varifying ")

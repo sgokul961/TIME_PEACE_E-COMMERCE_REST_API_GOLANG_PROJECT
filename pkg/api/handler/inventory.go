@@ -6,7 +6,6 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
-	"gokul.go/pkg/domain"
 	"gokul.go/pkg/usecase/usecaseInterfaces"
 
 	"gokul.go/pkg/utils/models"
@@ -23,15 +22,61 @@ func NewInventoryHandler(usecase usecaseInterfaces.InventoryUseCase) *InventoryH
 
 func (i *InventoryHandler) AddInventory(c *gin.Context) {
 
-	var Inventory domain.Inventories
+	// var Inventory domain.Inventories
 
-	if err := c.BindJSON(&Inventory); err != nil {
-		errRes := response.ClientResponse(http.StatusBadRequest, "feilds provided are in wrong format", nil, err.Error())
+	// if err := c.BindJSON(&Inventory); err != nil {
+	// 	errRes := response.ClientResponse(http.StatusBadRequest, "feilds provided are in wrong format", nil, err.Error())
+	// 	c.JSON(http.StatusBadRequest, errRes)
+	// 	return
+	// }
+	// InventoryResponse, err := i.InventoryUseCase.AddInventory(Inventory)
+
+	// if err != nil {
+	// 	errRes := response.ClientResponse(http.StatusBadRequest, "could not add the inventory", nil, err.Error())
+	// 	c.JSON(http.StatusBadRequest, errRes)
+	// 	return
+	// }
+	// successRes := response.ClientResponse(http.StatusOK, "successfully added inventory", InventoryResponse, nil)
+	// c.JSON(http.StatusOK, successRes)
+	var inventory models.AddInventories
+
+	categoryID, err := strconv.Atoi(c.Request.FormValue("category_id"))
+
+	if err != nil {
+		errRes := response.ClientResponse(http.StatusBadRequest, "form file error", nil, err.Error())
 		c.JSON(http.StatusBadRequest, errRes)
 		return
 	}
-	InventoryResponse, err := i.InventoryUseCase.AddInventory(Inventory)
+	product_name := c.Request.FormValue("product_name")
+	size := c.Request.FormValue("size")
 
+	p, err := strconv.ParseFloat(c.Request.FormValue("price"), 64)
+	if err != nil {
+		errRes := response.ClientResponse(http.StatusBadRequest, "form file error", nil, err.Error())
+		c.JSON(http.StatusBadRequest, errRes)
+		return
+	}
+	price := float64(p)
+
+	stock, err := strconv.Atoi(c.Request.FormValue("stock"))
+	if err != nil {
+		errRes := response.ClientResponse(http.StatusBadRequest, "form file error", nil, err.Error())
+		c.JSON(http.StatusBadRequest, errRes)
+		return
+	}
+	inventory.CategoryID = categoryID
+	inventory.ProductName = product_name
+	inventory.Size = size
+	inventory.Price = price
+	inventory.Stock = stock
+
+	file, err := c.FormFile("image")
+	if err != nil {
+		errRes := response.ClientResponse(http.StatusBadRequest, "retrieving image from form error", nil, err.Error())
+		c.JSON(http.StatusBadRequest, errRes)
+		return
+	}
+	InventoryResponse, err := i.InventoryUseCase.AddInventory(inventory, file)
 	if err != nil {
 		errRes := response.ClientResponse(http.StatusBadRequest, "could not add the inventory", nil, err.Error())
 		c.JSON(http.StatusBadRequest, errRes)
@@ -39,6 +84,7 @@ func (i *InventoryHandler) AddInventory(c *gin.Context) {
 	}
 	successRes := response.ClientResponse(http.StatusOK, "successfully added inventory", InventoryResponse, nil)
 	c.JSON(http.StatusOK, successRes)
+	fmt.Println("8")
 }
 func (i *InventoryHandler) UpdateInventory(c *gin.Context) {
 

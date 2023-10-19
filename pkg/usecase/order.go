@@ -3,6 +3,7 @@ package usecase
 import (
 	"fmt"
 
+	"github.com/jung-kurt/gofpdf"
 	"gokul.go/pkg/domain"
 	interfaces "gokul.go/pkg/repository/interface"
 	"gokul.go/pkg/usecase/usecaseInterfaces"
@@ -102,4 +103,65 @@ func (i *orderUseCase) EditOrderStatus(status string, id int) error {
 		return err
 	}
 	return nil
+}
+
+//-------------------pdf ----------------------------//
+
+func (u *orderUseCase) GenerateInvoice(orderID uint) (*gofpdf.Fpdf, error) {
+
+	order, err := u.orderRepository.GetOrderDetailsByID(orderID)
+
+	if err != nil {
+		return nil, err
+	}
+
+	pdf := gofpdf.New("P", "mm", "A4", "")
+	pdf.AddPage()
+	pdf.SetFont("Arial", "B", 16)
+
+	//Add the report title
+
+	pdf.CellFormat(0, 15, "Sales Report", "", 0, "C", false, 0, "")
+	pdf.Ln(10)
+
+	pdf.Cell(0, 10, fmt.Sprintf("User ID: %d", order.UserID))
+	pdf.Ln(10)
+	pdf.Cell(0, 10, fmt.Sprintf("Name: %s", order.Name))
+	pdf.Ln(10)
+	pdf.Cell(0, 10, fmt.Sprintf("Email: %s", order.Email))
+	pdf.Ln(10)
+	pdf.Cell(0, 10, fmt.Sprintf("Phone: %s", order.Phone))
+	pdf.Ln(10)
+	pdf.Cell(0, 10, fmt.Sprintf("AddressID: %d", order.AddressID))
+	pdf.Ln(10)
+	pdf.Cell(0, 10, fmt.Sprintf("Paymentmethod: %d", order.PaymentMethodID))
+	pdf.Ln(10)
+	pdf.Cell(0, 10, fmt.Sprintf("Paymentmethod: %v", order.Payment_Name))
+	pdf.Ln(10)
+	pdf.Cell(0, 10, fmt.Sprintf("FinalPrice: %v", order.FinalPrice))
+	pdf.Ln(10)
+
+	//
+	// pdf.Cell(0, 10, fmt.Sprintf("TotalPrice: %v", order.CouponUsed))
+	// pdf.Ln(10)
+	// pdf.Cell(0, 10, fmt.Sprintf("Order Status: %s", order.))
+	// pdf.Ln(10)
+
+	// pdf.Cell(40, 10, "Order ID : "+fmt.Sprint(order.ID))
+	// pdf.Ln(10)
+
+	// pdf.Cell(40, 10, "customer ID :"+fmt.Sprint(order.UserID))
+
+	// pdf.Ln(10)
+
+	// for _, item := range order.OrderItems {
+	// 	pdf.Cell(40, 10, fmt.Sprintf("Product ID: %d, Quantity: %d, Price per Unit: $%.2f", item.InventoryID, item.Quantity, item.TotalPrice))
+	// 	pdf.Ln(10) // New line
+	// }
+
+	// pdf.Ln(10) // New line
+	// pdf.Cell(40, 10, "Total Price: $"+fmt.Sprintf("%.2f", order.FinalPrice))
+
+	return pdf, nil
+
 }

@@ -100,3 +100,51 @@ func (i *OrdeHandler) EditOrderStatus(c *gin.Context) {
 	successRes := response.ClientResponse(http.StatusOK, "successfully edited the order status", nil, nil)
 	c.JSON(http.StatusOK, successRes)
 }
+
+func (h *OrdeHandler) GenerateInvoice(c *gin.Context) {
+	//orderIDParam := c.Param("orderID")
+
+	// orderID, err := strconv.ParseUint(orderIDParam, 10, 24)
+	orderID, err := strconv.Atoi(c.Query("orderID"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid orderID"})
+		return
+	}
+	pdf, err := h.orderUseCase.GenerateInvoice(uint(orderID))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to genarateinvoice"})
+		return
+	}
+
+	c.Header("Content-Disposition", "attachment; filename=invoice.pdf")
+
+	// Generate a temporary file path for the PDF
+	pdfFilePath := "salesReport/file.pdf"
+
+	// Save the PDF to the temporary file path
+	err = pdf.OutputFileAndClose(pdfFilePath)
+	if err != nil {
+		response := response.ClientResponse(500, "Failed to generate PDF", nil, err.Error())
+		c.JSON(500, response)
+		return
+	}
+
+	// Set the appropriate headers for the file download
+	c.Header("Content-Disposition", "attachment; filename=sales_report.pdf")
+	c.Header("Content-Type", "application/pdf")
+
+	// Serve the PDF file for download
+	c.File(pdfFilePath)
+
+	// Set Content-Type header to application/pdf
+	c.Header("Content-Type", "application/pdf")
+
+	// Write PDF data to the response writer
+	err = pdf.Output(c.Writer)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to serve invoice"})
+		return
+	}
+	c.Status(http.StatusOK)
+
+}

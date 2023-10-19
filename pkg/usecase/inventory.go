@@ -3,8 +3,10 @@ package usecase
 import (
 	"errors"
 	"fmt"
+	"mime/multipart"
 
 	"gokul.go/pkg/domain"
+	helper_interface "gokul.go/pkg/helper/interface"
 	interfaces "gokul.go/pkg/repository/interface"
 	"gokul.go/pkg/usecase/usecaseInterfaces"
 	"gokul.go/pkg/utils/models"
@@ -12,20 +14,35 @@ import (
 
 type inventoryUseCase struct {
 	repository interfaces.InventoryRepository
+	helper     helper_interface.Helper
 }
 
-func NewInventoryUseCase(repo interfaces.InventoryRepository) usecaseInterfaces.InventoryUseCase {
+func NewInventoryUseCase(repo interfaces.InventoryRepository, helper helper_interface.Helper) usecaseInterfaces.InventoryUseCase {
 
 	return &inventoryUseCase{
-		repository: repo}
+		repository: repo,
+		helper:     helper}
 }
-func (i *inventoryUseCase) AddInventory(inventory domain.Inventories) (models.InventoryResponse, error) {
-	InventoryResponse, err := i.repository.AddInventory(inventory)
+func (i *inventoryUseCase) AddInventory(inventory models.AddInventories, image *multipart.FileHeader) (models.InventoryResponse, error) {
+	// InventoryResponse, err := i.repository.AddInventory(inventory)
+	// if err != nil {
+	// 	return models.InventoryResponse{}, err
+	// }
+	// return InventoryResponse, nil
+	url, err := i.helper.AddImageToS3(image)
+
+	if err != nil {
+		return models.InventoryResponse{}, err
+	}
+	//send url in databe
+	InventoryResponse, err := i.repository.AddInventory(inventory, url)
 	if err != nil {
 		return models.InventoryResponse{}, err
 	}
 	return InventoryResponse, nil
+
 }
+
 func (i *inventoryUseCase) UpdateInventory(pid uint, stock int) (models.InventoryResponse, error) {
 
 	result, err := i.repository.CheckInventory(pid)

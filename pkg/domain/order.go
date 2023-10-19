@@ -49,3 +49,19 @@ type OrderDetails struct {
 	Paymentmethod string  `json:"payment_method"`
 	Total         float64 `json:"total"`
 }
+type UserorderResponse struct {
+	UserID          uint   `json:"user_id" gorm:"not null"`
+	Name            string `json:"name"`
+	Email           string `json:"email" validate:"email"`
+	Phone           string `json:"phone"`
+	Payment_Name    string `json:"payment_name"`
+	AddressID       uint   `json:"address_id" gorm:"not null"`
+	PaymentMethodID uint   `json:"paymentmethod_id"`
+
+	Quantity int `json:"quantity"`
+
+	CouponUsed    string  `json:"coupon_used" gorm:"default:null"`
+	FinalPrice    float64 `json:"price"`
+	OrderStatus   string  `json:"order_status" gorm:"order_status:4;default:'PENDING';check:order_status IN ('PENDING', 'SHIPPED','DELIVERED','CANCELED','RETURNED')"`
+	PaymentStatus string  `json:"payment_status" gorm:"payment_status:2;default:'NOT PAID';check:payment_status IN ('PAID', 'NOT PAID')"`
+}
