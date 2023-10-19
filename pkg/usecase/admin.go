@@ -18,9 +18,9 @@ type adminUseCase struct {
 	helper          helper_interface.Helper
 }
 
-func NewAdminUseCase(repo interfaces.AdminRepository) usecaseInterfaces.AdminUseCase {
+func NewAdminUseCase(repo interfaces.AdminRepository, help helper_interface.Helper) usecaseInterfaces.AdminUseCase {
 	return &adminUseCase{
-		AdminRepository: repo,
+		AdminRepository: repo, helper: help,
 	}
 }
 

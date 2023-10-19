@@ -23,10 +23,11 @@ type otpUseCase struct {
 //	func (*otpUseCase) VarifyOtp(code models.VarifyData) (models.TokenUsers, error) {
 //		panic("unimplemented")
 //	}
-func NewOtpUseCase(cfg config.Config, repo interfaces.OtpRepository) usecaseInterfaces.OtpUseCase {
+func NewOtpUseCase(cfg config.Config, repo interfaces.OtpRepository, help helper_interface.Helper) usecaseInterfaces.OtpUseCase {
 	return &otpUseCase{
 		cfg:           cfg,
 		otpRepository: repo,
+		helper:        help,
 	}
 }
 

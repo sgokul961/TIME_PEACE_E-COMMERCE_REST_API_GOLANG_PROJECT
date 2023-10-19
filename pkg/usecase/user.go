@@ -21,11 +21,12 @@ type userUseCase struct {
 	helper        helper_interface.Helper
 }
 
-func NewUserUseCase(repo interfaces.UserRepository, cfg config.Config, otp interfaces.OtpRepository) usecaseInterfaces.UserUseCase {
+func NewUserUseCase(repo interfaces.UserRepository, cfg config.Config, otp interfaces.OtpRepository, help helper_interface.Helper) usecaseInterfaces.UserUseCase {
 	return &userUseCase{
 		userRepo:      repo,
 		cfg:           cfg,
 		otpRepository: otp,
+		helper:        help,
 	}
 }
 func (u *userUseCase) UserSignUp(user models.UserDetails) (models.TokenUsers, error) {
