@@ -10,12 +10,13 @@ import (
 )
 
 type orderUseCase struct {
-	orderRepository interfaces.OrderRepository
-	userUseCase     usecaseInterfaces.UserUseCase
+	orderRepository  interfaces.OrderRepository
+	userUseCase      usecaseInterfaces.UserUseCase
+	couponrepository interfaces.CouponRepository
 }
 
-func NewOrderUseCase(repo interfaces.OrderRepository, userUseCase usecaseInterfaces.UserUseCase) usecaseInterfaces.OrderUseCase {
-	return &orderUseCase{orderRepository: repo, userUseCase: userUseCase}
+func NewOrderUseCase(repo interfaces.OrderRepository, userUseCase usecaseInterfaces.UserUseCase, coup interfaces.CouponRepository) usecaseInterfaces.OrderUseCase {
+	return &orderUseCase{orderRepository: repo, userUseCase: userUseCase, couponrepository: coup}
 }
 func (i *orderUseCase) GetOrders(id int) ([]domain.Order, error) {
 
@@ -27,25 +28,39 @@ func (i *orderUseCase) GetOrders(id int) ([]domain.Order, error) {
 
 	return orders, nil
 }
-func (i *orderUseCase) OrderItemsFromCart(userid int, addressid int, paymentid int) error {
+func (i *orderUseCase) OrderItemsFromCart(userid int, addressid int, paymentid int, couponID int) error {
 
 	cart, err := i.userUseCase.GetCart(userid)
-	fmt.Println(cart)
 
 	if err != nil {
 		return err
 	}
-	var totel float64
+	var total float64
 	for _, v := range cart {
-		totel = totel + v.Totel
+		total = total + v.DiscountedPrice
 	}
 	//finding discount
 
-	order_id, err := i.orderRepository.OrderItems(userid, addressid, paymentid, totel)
+	// DiscontRAte:=i.
+
+	// order_id, err := i.orderRepository.OrderItems(userid, addressid, paymentid, totel)
+	// if err != nil {
+	// 	return err
+	// }
+	// fmt.Println(order_id)
+	// if err := i.orderRepository.AddOrderProducts(order_id, cart); err != nil {
+	// 	return err
+	// }
+	// return nil
+	DiscountRate := i.couponrepository.FindCouponDiscount(couponID)
+
+	totaldiscount := (total * float64(DiscountRate)) / 100
+	total = total - totaldiscount
+
+	order_id, err := i.orderRepository.OrderItems(userid, addressid, paymentid, total)
 	if err != nil {
 		return err
 	}
-	fmt.Println(order_id)
 	if err := i.orderRepository.AddOrderProducts(order_id, cart); err != nil {
 		return err
 	}

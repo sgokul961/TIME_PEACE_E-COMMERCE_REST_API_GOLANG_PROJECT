@@ -43,7 +43,8 @@ func InitializeAPI(cfg config.Config) (*http.ServerHTTP, error) {
 	cartUseCase := usecase.NewCartUseCase(cartRepository, inventoryRepository, userUseCase)
 	cartHandler := handler.NewCartHandler(cartUseCase)
 	orderRepository := repository.NewOrderRepository(gormDB)
-	orderUseCase := usecase.NewOrderUseCase(orderRepository, userUseCase)
+	couponRepository := repository.NewCouponRepository(gormDB)
+	orderUseCase := usecase.NewOrderUseCase(orderRepository, userUseCase, couponRepository)
 	ordeHandler := handler.NewOrderHandler(orderUseCase)
 	payementRepository := repository.NewPaymentRepository(gormDB)
 	paymentUseCase := usecase.NewPaymentUseCase(payementRepository)
@@ -51,6 +52,11 @@ func InitializeAPI(cfg config.Config) (*http.ServerHTTP, error) {
 	salesRepository := repository.NewSalesRepository(gormDB)
 	salesUseCase := usecase.NewSalesUseCase(salesRepository)
 	salesHandler := handler.NewSalesHandler(salesUseCase)
-	serverHTTP := http.NewServerHTTP(adminHandler, userHandler, otpHandler, inventoryHandler, categoryHandler, cartHandler, ordeHandler, paymentHandler, salesHandler)
+	couponUseCase := usecase.NewCouponUseCase(couponRepository)
+	couponHAndler := handler.NewCouponHandler(couponUseCase)
+	offerRepository := repository.NewOfferRepository(gormDB)
+	offerUseCase := usecase.NewOfferusecase(offerRepository)
+	offerHandler := handler.NewOfferHandler(offerUseCase)
+	serverHTTP := http.NewServerHTTP(adminHandler, userHandler, otpHandler, inventoryHandler, categoryHandler, cartHandler, ordeHandler, paymentHandler, salesHandler, couponHAndler, offerHandler)
 	return serverHTTP, nil
 }

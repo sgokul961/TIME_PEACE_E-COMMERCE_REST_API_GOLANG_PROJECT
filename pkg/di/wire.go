@@ -54,6 +54,14 @@ func InitializeAPI(cfg config.Config) (*http.ServerHTTP, error) {
 
 		helper.NewHelper,
 
+		repository.NewCouponRepository,
+		usecase.NewCouponUseCase,
+		handler.NewCouponHandler,
+
+		repository.NewOfferRepository,
+		usecase.NewOfferusecase,
+		handler.NewOfferHandler,
+
 		http.NewServerHTTP,
 	)
 

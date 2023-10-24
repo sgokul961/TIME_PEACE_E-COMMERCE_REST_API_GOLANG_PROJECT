@@ -40,6 +40,17 @@ func (i *OrdeHandler) GetOrders(c *gin.Context) {
 }
 func (i *OrdeHandler) OrderItemsFromCart(c *gin.Context) {
 
+	idstring := c.Query("coupon-id")
+	if idstring == "" {
+		idstring = "0"
+	}
+	couponId, err := strconv.Atoi(idstring)
+	if err != nil {
+		errRes := response.ClientResponse(http.StatusBadRequest, "coupon id problem", nil, err.Error())
+		c.JSON(http.StatusBadRequest, errRes)
+		return
+	}
+
 	var order models.Order
 
 	if err := c.BindJSON(&order); err != nil {
@@ -47,15 +58,15 @@ func (i *OrdeHandler) OrderItemsFromCart(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, errRes)
 		return
 	}
-	err := i.orderUseCase.OrderItemsFromCart(order.UserID, order.AddressID, order.PaymentMethodID)
-	if err != nil {
+	if err := i.orderUseCase.OrderItemsFromCart(order.UserID, order.AddressID, order.PaymentMethodID, couponId); err != nil {
 		errRes := response.ClientResponse(http.StatusBadRequest, "could not make the order", nil, err.Error())
 		c.JSON(http.StatusBadRequest, errRes)
 		return
 	}
-	successRes := response.ClientResponse(http.StatusOK, "successfully made the order", nil, nil)
-	c.JSON(http.StatusOK, successRes)
+	succRes := response.ClientResponse(http.StatusOK, "successfully placed the order", nil, nil)
+	c.JSON(http.StatusOK, succRes)
 }
+
 func (i *OrdeHandler) CancelOrder(c *gin.Context) {
 	id, err := strconv.Atoi(c.Query("id"))
 

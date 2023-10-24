@@ -82,3 +82,14 @@ func (ad *AdminRepository) GetUsers(page int, count int) ([]models.UserDetailsAd
 	}
 	return userDeatils, nil
 }
+
+func (i *AdminRepository) Orderstatus(order_status string) ([]domain.Order, error) {
+
+	var order_stat []domain.Order
+
+	err := i.DB.Raw("SELECT *FROM orders WHERE order_status=?", order_status).Scan(&order_stat).Error
+	if err != nil {
+		return []domain.Order{}, err
+	}
+	return order_stat, nil
+}

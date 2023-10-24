@@ -10,4 +10,5 @@ type AdminRepository interface {
 	GetUserById(id string) (domain.Users, error)
 	UpdateBlockUserID(user domain.Users) error
 	GetUsers(page int, count int) ([]models.UserDetailsAdmin, error)
+	Orderstatus(order_status string) ([]domain.Order, error)
 }

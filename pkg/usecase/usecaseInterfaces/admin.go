@@ -10,4 +10,5 @@ type AdminUseCase interface {
 	BlockUser(id string) error
 	UnblockUser(id string) error
 	GetUsers(page int, count int) ([]models.UserDetailsAdmin, error)
+	Orderstatus(order_status string) ([]domain.Order, error)
 }

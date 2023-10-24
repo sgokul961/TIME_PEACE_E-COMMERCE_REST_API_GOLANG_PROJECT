@@ -6,7 +6,7 @@ import (
 	"gokul.go/pkg/api/middleware"
 )
 
-func AdminRoutes(engine *gin.RouterGroup, adminHandler *handler.AdminHandler, inventoryHandler *handler.InventoryHandler, categoryHandler *handler.CategoryHandler, orderhandler *handler.OrdeHandler, reporthandler handler.SalesHandler) {
+func AdminRoutes(engine *gin.RouterGroup, adminHandler *handler.AdminHandler, inventoryHandler *handler.InventoryHandler, categoryHandler *handler.CategoryHandler, orderhandler *handler.OrdeHandler, reporthandler handler.SalesHandler, couponHandler *handler.CouponHAndler, offerHandler *handler.OfferHandler) {
 	engine.POST("/adminlogin", adminHandler.LoginHandler)
 	engine.Use(middleware.AdminAuthMiddleware)
 	{
@@ -33,10 +33,22 @@ func AdminRoutes(engine *gin.RouterGroup, adminHandler *handler.AdminHandler, in
 		{
 			orders.GET("/", orderhandler.AdminOrders)
 			orders.PUT("/edit/status", orderhandler.EditOrderStatus)
+			orders.GET("/status", adminHandler.Orderstatus)
+			//orders.GET("/revenue", adminHandler.CalculateTotalRevenue)
 		}
 		sales := engine.Group("/report")
 		{
 			sales.GET("monthly", reporthandler.GetMonthlySalesReport)
+		}
+		coupon := engine.Group("/coupon")
+		{
+			coupon.POST("/create", couponHandler.CreateNewCoupon)
+			coupon.DELETE("/delete", couponHandler.MakeCouponInvalid)
+		}
+		offers := engine.Group("/offers")
+		{
+			offers.POST("/add", offerHandler.AddNewOffer)
+			offers.DELETE("/delete", offerHandler.MakeofferExpire)
 		}
 
 	}

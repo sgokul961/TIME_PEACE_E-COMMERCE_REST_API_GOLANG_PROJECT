@@ -110,3 +110,13 @@ func (ad *adminUseCase) GetUsers(page int, count int) ([]models.UserDetailsAdmin
 	}
 	return userDetails, nil
 }
+
+func (i *adminUseCase) Orderstatus(order_status string) ([]domain.Order, error) {
+
+	status, err := i.AdminRepository.Orderstatus(order_status)
+
+	if err != nil {
+		return []domain.Order{}, err
+	}
+	return status, nil
+}

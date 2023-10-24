@@ -104,3 +104,18 @@ func (ad *AdminHandler) GetUsers(c *gin.Context) {
 	c.JSON(http.StatusOK, successRes)
 
 }
+
+func (i *AdminHandler) Orderstatus(ctx *gin.Context) {
+
+	status := ctx.Query("order_status")
+
+	pendingorder, err := i.adminUseCase.Orderstatus(status)
+
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error"})
+		return
+	}
+	ctx.JSON(http.StatusOK, pendingorder)
+
+}
+
