@@ -72,4 +72,12 @@ func (ad *cartRepository) GetPaymentOptions() ([]models.PaymentMethod, error) {
 	return payment, nil
 }
 
-//-------------------------------------------------------------//
+// -------------------------------------------------------------//
+func (i *cartRepository) DeleteFromCart(cart_id int) error {
+	err := i.DB.Exec(`DELETE FROM line_items WHERE cart_id=?`, cart_id).Error
+
+	if err != nil {
+		return err
+	}
+	return nil
+}

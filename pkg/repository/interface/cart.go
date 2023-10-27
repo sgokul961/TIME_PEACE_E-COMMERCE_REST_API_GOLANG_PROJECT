@@ -9,6 +9,7 @@ type CartRepository interface {
 	AddLineItems(cart_id, inventory_id int) error
 	GetAddresses(id int) ([]models.Address, error)
 	GetPaymentOptions() ([]models.PaymentMethod, error)
+	DeleteFromCart(cart_id int) error
 
 	//-------------------------------------------------------//
 }

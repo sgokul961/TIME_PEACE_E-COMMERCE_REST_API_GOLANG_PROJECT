@@ -13,10 +13,11 @@ type orderUseCase struct {
 	orderRepository  interfaces.OrderRepository
 	userUseCase      usecaseInterfaces.UserUseCase
 	couponrepository interfaces.CouponRepository
+	cart             interfaces.CartRepository
 }
 
-func NewOrderUseCase(repo interfaces.OrderRepository, userUseCase usecaseInterfaces.UserUseCase, coup interfaces.CouponRepository) usecaseInterfaces.OrderUseCase {
-	return &orderUseCase{orderRepository: repo, userUseCase: userUseCase, couponrepository: coup}
+func NewOrderUseCase(repo interfaces.OrderRepository, userUseCase usecaseInterfaces.UserUseCase, coup interfaces.CouponRepository, cart interfaces.CartRepository) usecaseInterfaces.OrderUseCase {
+	return &orderUseCase{orderRepository: repo, userUseCase: userUseCase, couponrepository: coup, cart: cart}
 }
 func (i *orderUseCase) GetOrders(id int) ([]domain.Order, error) {
 
@@ -31,6 +32,7 @@ func (i *orderUseCase) GetOrders(id int) ([]domain.Order, error) {
 func (i *orderUseCase) OrderItemsFromCart(userid int, addressid int, paymentid int, couponID int) error {
 
 	cart, err := i.userUseCase.GetCart(userid)
+	fmt.Println("cart is:", cart)
 
 	if err != nil {
 		return err
@@ -39,6 +41,7 @@ func (i *orderUseCase) OrderItemsFromCart(userid int, addressid int, paymentid i
 	for _, v := range cart {
 		total = total + v.DiscountedPrice
 	}
+	fmt.Println("chech here:", total)
 	//finding discount
 
 	// DiscontRAte:=i.
@@ -53,10 +56,11 @@ func (i *orderUseCase) OrderItemsFromCart(userid int, addressid int, paymentid i
 	// }
 	// return nil
 	DiscountRate := i.couponrepository.FindCouponDiscount(couponID)
-
+	fmt.Println("check discount")
+	fmt.Println(DiscountRate, couponID)
 	totaldiscount := (total * float64(DiscountRate)) / 100
 	total = total - totaldiscount
-
+	fmt.Println(total)
 	order_id, err := i.orderRepository.OrderItems(userid, addressid, paymentid, total)
 	if err != nil {
 		return err
@@ -64,8 +68,10 @@ func (i *orderUseCase) OrderItemsFromCart(userid int, addressid int, paymentid i
 	if err := i.orderRepository.AddOrderProducts(order_id, cart); err != nil {
 		return err
 	}
-	return nil
+	cart_id, _ := i.cart.GetCartId(userid)
+	return i.cart.DeleteFromCart(cart_id)
 }
+
 func (or *orderUseCase) CancelOrder(id int) error {
 	err := or.orderRepository.CancelOrder(id)
 

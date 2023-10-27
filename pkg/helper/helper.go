@@ -2,6 +2,8 @@ package helper
 
 import (
 	"context"
+	"crypto/rand"
+	"encoding/base32"
 	"errors"
 	"fmt"
 	"mime/multipart"
@@ -160,4 +162,24 @@ func (h *helper) GenerateTokenClients(user models.UserDeatilsResponse) (string, 
 	}
 
 	return tokenString, nil
+}
+func (h *helper) GenerateRefferalCode() (string, error) {
+	// Calculate the required number of random bytes
+	byteLength := (5 * 5) / 8
+
+	// Generate a random byte array
+	randomBytes := make([]byte, byteLength)
+	_, err := rand.Read(randomBytes)
+	if err != nil {
+		return "", err
+	}
+
+	// Encode the random bytes to base32
+	encoder := base32.NewEncoding("ABCDEFGHIJKLMNOPQRSTUVWXYZ234567").WithPadding(base32.NoPadding)
+	encoded := encoder.EncodeToString(randomBytes)
+
+	// Trim any additional characters to match the desired length
+	encoded = encoded[:5]
+
+	return encoded, nil
 }

@@ -50,6 +50,16 @@ func (ad *AdminHandler) LoginHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, successRes)
 }
 
+// @Summary		Block User
+// @Description	using this handler admins can block an user
+// @Tags			Admin
+// @Accept			json
+// @Produce		json
+// @Security		Bearer
+// @Param			id	query		string	true	"user-id"
+// @Success		200	{object}	response.Response{}
+// @Failure		500	{object}	response.Response{}
+// @Router			/admin/users/block [post]
 func (ad *AdminHandler) BlockUser(c *gin.Context) {
 	id := c.Query("id")
 	err := ad.adminUseCase.BlockUser(id)
@@ -63,6 +73,16 @@ func (ad *AdminHandler) BlockUser(c *gin.Context) {
 
 }
 
+// @Summary		UnBlock an existing user
+// @Description	UnBlock user
+// @Tags			Admin
+// @Accept			json
+// @Produce		json
+// @Security		Bearer
+// @Param			id	query		string	true	"user-id"
+// @Success		200	{object}	response.Response{}
+// @Failure		500	{object}	response.Response{}
+// @Router			/admin/users/unblock [POST]
 func (ad *AdminHandler) UnblockUser(c *gin.Context) {
 
 	id := c.Query("id")
@@ -77,6 +97,17 @@ func (ad *AdminHandler) UnblockUser(c *gin.Context) {
 	c.JSON(http.StatusOK, successRes)
 
 }
+
+// @Summary		Get Users
+// @Description	Retrieve users with pagination
+// @Tags			Admin
+// @Accept			json
+// @Produce		json
+// @Security		Bearer
+// @Param			page	query		string	true	"Page number"
+// @Success		200		{object}	response.Response{}
+// @Failure		500		{object}	response.Response{}
+// @Router			/admin/users/getusers [get]
 func (ad *AdminHandler) GetUsers(c *gin.Context) {
 	pageStr := c.Query("page")
 	page, err := strconv.Atoi(pageStr)
@@ -118,4 +149,3 @@ func (i *AdminHandler) Orderstatus(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, pendingorder)
 
 }
-

@@ -28,9 +28,10 @@ func (or *orderRepository) GetOrders(id int) ([]domain.Order, error) {
 }
 func (i *orderRepository) OrderItems(userid, addressid, payementid int, total float64) (int, error) {
 	var id int
-
+	fmt.Println("look here")
+	fmt.Println(userid, addressid, payementid, total)
 	query :=
-		`INSERT INTO orders (created_at,user_id,address_id,payment_method_id,final_price)
+		`INSERT INTO orders (created_at,user_id,address_id,payment_method_id,final_price )
 	VALUES (NOW(),? ,? ,?, ?) RETURNING id`
 
 	err := i.DB.Raw(query, userid, addressid, payementid, total).Scan(&id).Error
@@ -154,4 +155,33 @@ func (or *orderRepository) GetOrdersByStatus(status string) ([]domain.Order, err
 
 }
 
-//---------------------------------------------------------------------------------------//
+// ---------------------------------------------------------------------------------------//
+func (o *orderRepository) CreateNewWallet(userID int) (int, error) {
+	var walletID int
+
+	err := o.DB.Exec(`INSERT INTO wallets(user_id,amount)VALUES($1,$2)`, userID, 0).Error
+	if err != nil {
+		return 0, err
+	}
+	if err := o.DB.Raw("SELECT id FROM wallets WHERE user_id=$1", userID).Scan(&walletID).Error; err != nil {
+		return 0, err
+	}
+	return walletID, nil
+}
+func (o *orderRepository) FindWalletIdFromUserID(userId int) (int, error) {
+	var count int
+	err := o.DB.Raw("SELECT COUNT(*) FROM wallets WHERE user_id=?", userId).Scan(&count).Error
+	if err != nil {
+		return 0, err
+	}
+	var walletID int
+
+	if count > 0 {
+		err := o.DB.Raw(`SELECT id FROM wallets WHERE user_id=?`, userId).Scan(&walletID).Error
+		if err != nil {
+			return 0, err
+		}
+	}
+	return walletID, nil
+
+}

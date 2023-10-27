@@ -6,7 +6,7 @@ import (
 )
 
 type UserRepository interface {
-	UserSignUp(user models.UserDetails) (models.UserDeatilsResponse, error)
+	UserSignUp(user models.UserDetails, referral string) (models.UserDeatilsResponse, error)
 	CheckUserAvailability(email string) bool
 	FindUserByEmail(user models.UserLoign) (models.UserSignInResponse, error)
 	UserBlockStatus(email string) (bool, error)
@@ -29,4 +29,8 @@ type UserRepository interface {
 	FindCartQuantity(cart_id, inventory_id uint) (int, error)
 	FindCategory(inventory_id uint) (int, error)
 	FindofferPercentage(category_id int) (int, error)
+
+	CreditReferencePointsToWallet(user_id int) error
+	FindUserFromReference(ref string) (int, error)
+	GetReferralCodeFromID(id int) (string, error)
 }

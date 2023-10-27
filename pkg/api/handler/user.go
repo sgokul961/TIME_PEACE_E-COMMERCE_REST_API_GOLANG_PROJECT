@@ -25,6 +25,15 @@ func NewUserHandler(usecase usecaseInterfaces.UserUseCase) *UserHandler {
 	return &UserHandler{userUsecase: usecase}
 }
 
+// @Summary		User Signup
+// @Description	user can signup by giving their details
+// @Tags			User
+// @Accept			json
+// @Produce		    json
+// @Param			signup  body  models.UserDetails  true	"signup"
+// @Success		200	{object}	response.Response{} ""
+// @Failure		500	{object}	response.Response{} ""
+// @Router			/user/signup [post]
 func (u *UserHandler) UserSignUp(c *gin.Context) {
 
 	var user models.UserDetails
@@ -44,8 +53,12 @@ func (u *UserHandler) UserSignUp(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, errRes)
 		return
 	}
+
+	//if the user wants to mention the referral code of other user
+	ref := c.Query("reference")
+
 	//bussiness logic goes inside this function
-	userCreated, err := u.userUsecase.UserSignUp(user) //check here
+	userCreated, err := u.userUsecase.UserSignUp(user, ref) //check here
 
 	if err != nil {
 		errRes := response.ClientResponse(http.StatusBadRequest, "User coudnt sign up", nil, err.Error())
@@ -304,5 +317,23 @@ func (i *UserHandler) VarifyForgotPasswordAndChange(c *gin.Context) {
 		return
 	}
 	successRes := response.ClientResponse(http.StatusOK, "successfully cahnged the password", nil, nil)
+	c.JSON(http.StatusOK, successRes)
+}
+func (i *UserHandler) GetMyReferanceLink(c *gin.Context) {
+	id, err := strconv.Atoi(c.Query("id"))
+
+	if err != nil {
+		errRes := response.ClientResponse(http.StatusBadRequest, "check paramesters properly", nil, err.Error())
+		c.JSON(http.StatusBadRequest, errRes)
+		return
+	}
+	link, err := i.userUsecase.GetMyReferanceLink(id)
+
+	if err != nil {
+		errRes := response.ClientResponse(http.StatusBadRequest, "could not retrive refferal link", nil, err.Error())
+		c.JSON(http.StatusBadRequest, errRes)
+		return
+	}
+	successRes := response.ClientResponse(http.StatusOK, "successfully got all product in cart", link, nil)
 	c.JSON(http.StatusOK, successRes)
 }

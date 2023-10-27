@@ -36,6 +36,7 @@ func UserRoutes(engine *gin.RouterGroup, userHandler *handler.UserHandler, otpHa
 			profile.GET("details", userHandler.GetUserDetails)
 			profile.GET("/address", userHandler.GetAddress)
 			profile.POST("/addaddress", userHandler.AddAddress)
+			profile.GET("get_link", userHandler.GetMyReferanceLink)
 
 			security := profile.Group("/security")
 			{

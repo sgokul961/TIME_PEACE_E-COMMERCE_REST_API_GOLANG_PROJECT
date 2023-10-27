@@ -1,0 +1,281 @@
+definitions:
+  models.AdminLogin:
+    properties:
+      email:
+        type: string
+      password:
+        maxLength: 20
+        minLength: 8
+        type: string
+    required:
+    - email
+    type: object
+  models.Coupons:
+    properties:
+      coupon:
+        type: string
+      discount_rate:
+        type: integer
+      valid:
+        type: boolean
+    type: object
+  models.OfferMaking:
+    properties:
+      category_id:
+        type: integer
+      discount:
+        type: integer
+    type: object
+  models.UserDetails:
+    properties:
+      confirmpassword:
+        type: string
+      email:
+        type: string
+      name:
+        type: string
+      password:
+        type: string
+      phone:
+        type: string
+      referral_code:
+        type: string
+    type: object
+  response.Response:
+    properties:
+      data: {}
+      error: {}
+      message:
+        type: string
+      status_code:
+        type: integer
+    type: object
+info:
+  contact:
+    name: API Support
+  title: Go + Gin E-Commerce API
+  version: 1.0.0
+paths:
+  /admin/adminlogin:
+    post:
+      consumes:
+      - application/json
+      description: Login handler for timepeace admins
+      parameters:
+      - description: Admin login details
+        in: body
+        name: admin
+        required: true
+        schema:
+          $ref: '#/definitions/models.AdminLogin'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Admin Login
+      tags:
+      - Admin
+  /admin/coupon/create:
+    post:
+      consumes:
+      - application/json
+      description: Admin can add new coupons
+      parameters:
+      - description: coupon
+        in: body
+        name: coupon
+        required: true
+        schema:
+          $ref: '#/definitions/models.Coupons'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - Bearer: []
+      summary: Add Coupon
+      tags:
+      - Admin
+  /admin/coupons/delete:
+    delete:
+      consumes:
+      - application/json
+      description: Admin can make the coupons as invalid so that users cannot use
+        that particular coupon
+      parameters:
+      - description: id
+        in: query
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - Bearer: []
+      summary: Make Coupon ad invalid
+      tags:
+      - Admin
+  /admin/offers/add:
+    post:
+      consumes:
+      - application/json
+      description: Admin can add new offers forspecified categories
+      parameters:
+      - description: offer
+        in: body
+        name: offer
+        required: true
+        schema:
+          $ref: '#/definitions/models.OfferMaking'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - Bearer: []
+      summary: Add Offer
+      tags:
+      - Admin
+  /admin/users:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve users with pagination
+      parameters:
+      - description: Page number
+        in: query
+        name: page
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - Bearer: []
+      summary: Get Users
+      tags:
+      - Admin
+  /admin/users/block:
+    post:
+      consumes:
+      - application/json
+      description: using this handler admins can block an user
+      parameters:
+      - description: user-id
+        in: query
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - Bearer: []
+      summary: Block User
+      tags:
+      - Admin
+  /admin/users/unblock:
+    post:
+      consumes:
+      - application/json
+      description: UnBlock user
+      parameters:
+      - description: user-id
+        in: query
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - Bearer: []
+      summary: UnBlock an existing user
+      tags:
+      - Admin
+  /user/signup:
+    post:
+      consumes:
+      - application/json
+      description: user can signup by giving their details
+      parameters:
+      - description: signup
+        in: body
+        name: signup
+        required: true
+        schema:
+          $ref: '#/definitions/models.UserDetails'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: User Signup
+      tags:
+      - User
+securityDefinitions:
+  BearerTokenAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

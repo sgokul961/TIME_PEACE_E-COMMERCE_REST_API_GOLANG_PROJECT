@@ -28,11 +28,13 @@ func (repo *CouponRepository) MakeCouponInvalid(id int) error {
 	return nil
 }
 func (repo *CouponRepository) FindCouponDiscount(couponID int) int {
-	var coupon models.Coupons
 
-	err := repo.DB.Raw(`SELECT coupon,discount_rate,valid FROM coupons WHERE id=$1`, couponID).Scan(&coupon)
+	var coupon int
+
+	err := repo.DB.Raw(`SELECT discount_rate FROM coupons WHERE id=$1`, couponID).Scan(&coupon).Error
 	if err != nil {
 		return 0
 	}
-	return coupon.DiscountRate
+
+	return coupon
 }

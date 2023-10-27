@@ -32,7 +32,6 @@ func (ot *OtpHandler) SendOTP(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, errRes)
 		return
 	}
-	fmt.Println("code runs until here for sure 3")
 	successRes := response.ClientResponse(http.StatusOK, "OTP sent Successfully", nil, nil)
 	c.JSON(http.StatusOK, successRes)
 

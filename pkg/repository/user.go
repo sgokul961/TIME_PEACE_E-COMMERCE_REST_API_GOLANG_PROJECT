@@ -17,10 +17,10 @@ type userDataBase struct {
 func NewUserRepository(DB *gorm.DB) interfaces.UserRepository {
 	return &userDataBase{DB: DB}
 }
-func (c *userDataBase) UserSignUp(user models.UserDetails) (models.UserDeatilsResponse, error) {
+func (c *userDataBase) UserSignUp(user models.UserDetails, referral string) (models.UserDeatilsResponse, error) {
 	var userDeatils models.UserDeatilsResponse
 
-	err := c.DB.Raw("INSERT INTO users(name,email,password,phone)VALUES(?,?,?,?)RETURNING id,name,email,phone", user.Name, user.Email, user.Password, user.Phone).Scan(&userDeatils).Error
+	err := c.DB.Raw("INSERT INTO users(name,email,password,phone,referral_code)VALUES(?,?,?,?,?)RETURNING id,name,email,phone", user.Name, user.Email, user.Password, user.Phone, referral).Scan(&userDeatils).Error
 
 	if err != nil {
 		return models.UserDeatilsResponse{}, err
@@ -123,7 +123,7 @@ func (ad *userDataBase) GetCart(id int) ([]models.GetCart, error) {
 }
 
 func (ad *userDataBase) GetCartID(id int) (uint, error) {
-
+	fmt.Println("the id is:", id)
 	var cart_id uint
 	if err := ad.DB.Raw("SELECT id FROM carts WHERE user_id=?", id).Scan(&cart_id).Error; err != nil {
 		return 0, err
@@ -175,7 +175,7 @@ func (ad *userDataBase) FindPrice(inventory_id uint) (float64, error) {
 func (ad *userDataBase) FindCartQuantity(cart_id, inventory_id uint) (int, error) {
 	var quantity int
 
-	if err := ad.DB.Raw("SELECT quantity FROM line_items WHERE id=$1 AND inventory_id=$2", cart_id, inventory_id).Scan(&quantity).Error; err != nil {
+	if err := ad.DB.Raw("SELECT quantity FROM line_items WHERE cart_id=$1 AND inventory_id=$2", cart_id, inventory_id).Scan(&quantity).Error; err != nil {
 		return 0, err
 	}
 	return quantity, nil
@@ -234,4 +234,28 @@ func (ad *userDataBase) FindIdFromPhone(phone string) (int, error) {
 
 	}
 	return id, nil
+}
+func (i *userDataBase) CreditReferencePointsToWallet(user_id int) error {
+	err := i.DB.Exec(`UPDATE wallets SET amount=amount+20 WHERE user_id=$1`, user_id).Error
+	if err != nil {
+		return err
+	}
+	return nil
+}
+func (i *userDataBase) FindUserFromReference(ref string) (int, error) {
+	var user int
+
+	if err := i.DB.Raw(`SELECT id FROM users WHERE referral_code=?`, ref).Find(&user).Error; err != nil {
+		return 0, err
+	}
+	return user, nil
+}
+func (i *userDataBase) GetReferralCodeFromID(id int) (string, error) {
+	var referral string
+
+	err := i.DB.Raw(`SELECT referral_code FROM users WHERE id=?`, id).Scan(&referral).Error
+	if err != nil {
+		return "", err
+	}
+	return referral, nil
 }

@@ -15,21 +15,26 @@ import (
 )
 
 type userUseCase struct {
-	userRepo      interfaces.UserRepository
-	cfg           config.Config
-	otpRepository interfaces.OtpRepository
-	helper        helper_interface.Helper
+	userRepo        interfaces.UserRepository
+	cfg             config.Config
+	otpRepository   interfaces.OtpRepository
+	helper          helper_interface.Helper
+	orderRepository interfaces.OrderRepository
 }
 
-func NewUserUseCase(repo interfaces.UserRepository, cfg config.Config, otp interfaces.OtpRepository, help helper_interface.Helper) usecaseInterfaces.UserUseCase {
+func NewUserUseCase(repo interfaces.UserRepository, cfg config.Config, otp interfaces.OtpRepository, help helper_interface.Helper, order interfaces.OrderRepository) usecaseInterfaces.UserUseCase {
 	return &userUseCase{
-		userRepo:      repo,
-		cfg:           cfg,
-		otpRepository: otp,
-		helper:        help,
+		userRepo:        repo,
+		cfg:             cfg,
+		otpRepository:   otp,
+		helper:          help,
+		orderRepository: order,
 	}
 }
-func (u *userUseCase) UserSignUp(user models.UserDetails) (models.TokenUsers, error) {
+
+var InternalError = "Internal Server Error"
+
+func (u *userUseCase) UserSignUp(user models.UserDetails, ref string) (models.TokenUsers, error) {
 
 	fmt.Println("add users")
 	//check if user exist
@@ -44,6 +49,10 @@ func (u *userUseCase) UserSignUp(user models.UserDetails) (models.TokenUsers, er
 	if user.Password != user.ConfirmPassWord {
 		return models.TokenUsers{}, errors.New("password dosnt match")
 	}
+	refernseUser, err := u.userRepo.FindUserFromReference(ref)
+	if err != nil {
+		return models.TokenUsers{}, errors.New("cannot find reference user")
+	}
 	//hash password since details are validated
 
 	hashePassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), 10)
@@ -54,11 +63,17 @@ func (u *userUseCase) UserSignUp(user models.UserDetails) (models.TokenUsers, er
 	}
 	user.Password = string(hashePassword)
 
+	referral, err := u.helper.GenerateRefferalCode()
+
+	if err != nil {
+		return models.TokenUsers{}, errors.New(InternalError)
+	}
+
 	if err != nil {
 		return models.TokenUsers{}, err
 	}
 	//add user details to the database
-	userData, err := u.userRepo.UserSignUp(user)
+	userData, err := u.userRepo.UserSignUp(user, referral)
 	if err != nil {
 		return models.TokenUsers{}, err
 	}
@@ -70,16 +85,25 @@ func (u *userUseCase) UserSignUp(user models.UserDetails) (models.TokenUsers, er
 		return models.TokenUsers{}, errors.New("could not crate a token due to some internal error")
 
 	}
-	var userDetails models.UserDeatilsResponse
-	//copies all the details except password from the user.
+	// var userDetails models.UserDeatilsResponse
+	// //copies all the details except password from the user.
 
-	err = copier.Copy(&userDetails, &userData)
+	// err = copier.Copy(&userDetails, &userData)
 
-	if err != nil {
-		return models.TokenUsers{}, err
+	// if err != nil {
+	// 	return models.TokenUsers{}, err
+	// }
+
+	//credit 20 rupees to the user which is the source of the reference code
+	if err := u.userRepo.CreditReferencePointsToWallet(refernseUser); err != nil {
+		return models.TokenUsers{}, errors.New("error in crediting gift")
+	}
+	//creating a new wallet
+	if _, err := u.orderRepository.CreateNewWallet(userData.Id); err != nil {
+		return models.TokenUsers{}, errors.New("errorin creating wallet")
 	}
 	return models.TokenUsers{
-		Users: userDetails,
+		Users: userData,
 		Token: tokenString,
 	}, nil
 }
@@ -211,7 +235,7 @@ func (u *userUseCase) GetCart(id int) ([]models.GetCart, error) {
 		return []models.GetCart{}, errors.New("internal error")
 
 	}
-	fmt.Println(cart_id)
+	fmt.Println("cart id is:", cart_id)
 
 	//find products inside cart
 
@@ -220,7 +244,7 @@ func (u *userUseCase) GetCart(id int) ([]models.GetCart, error) {
 		return []models.GetCart{}, errors.New("internal error")
 	}
 
-	fmt.Println(products)
+	fmt.Println("product is :", products)
 
 	//find product names
 
@@ -234,7 +258,7 @@ func (u *userUseCase) GetCart(id int) ([]models.GetCart, error) {
 		}
 		product_names = append(product_names, product_name)
 	}
-	fmt.Println(product_names)
+	fmt.Println("product name is :", product_names)
 	//find quantity
 
 	var quantity []int
@@ -244,9 +268,10 @@ func (u *userUseCase) GetCart(id int) ([]models.GetCart, error) {
 		if err != nil {
 			return []models.GetCart{}, errors.New("internal error")
 		}
+		fmt.Println("quantity q:", q)
 		quantity = append(quantity, q)
 	}
-	fmt.Println(quantity)
+	fmt.Println("the quantity is:", quantity)
 
 	var price []float64
 
@@ -258,7 +283,7 @@ func (u *userUseCase) GetCart(id int) ([]models.GetCart, error) {
 		}
 		price = append(price, q)
 	}
-	fmt.Println(price)
+	fmt.Println("the price is:", price)
 	var categories []int
 
 	for i := range products {
@@ -282,7 +307,7 @@ func (u *userUseCase) GetCart(id int) ([]models.GetCart, error) {
 
 		getcart = append(getcart, get)
 	}
-	fmt.Println(getcart)
+	fmt.Println("getcart is:", getcart)
 	//find offers
 	var offers []int
 
@@ -353,4 +378,16 @@ func (i *userUseCase) VarifyForgotPasswordAndChange(model models.ForgotVarify) e
 	}
 	return nil
 
+}
+func (i *userUseCase) GetMyReferanceLink(id int) (string, error) {
+	baseURL := "gokul.go/user/signup"
+
+	referralCode, err := i.userRepo.GetReferralCodeFromID(id)
+	if err != nil {
+		return "", errors.New("error getting ref code")
+
+	}
+	referralLInk := fmt.Sprintf("%s?ref=%s", baseURL, referralCode)
+
+	return referralLInk, nil
 }

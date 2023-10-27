@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -50,7 +51,7 @@ func (i *OrdeHandler) OrderItemsFromCart(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, errRes)
 		return
 	}
-
+	fmt.Println("check 4")
 	var order models.Order
 
 	if err := c.BindJSON(&order); err != nil {
@@ -58,11 +59,14 @@ func (i *OrdeHandler) OrderItemsFromCart(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, errRes)
 		return
 	}
+	fmt.Println("check 3")
 	if err := i.orderUseCase.OrderItemsFromCart(order.UserID, order.AddressID, order.PaymentMethodID, couponId); err != nil {
 		errRes := response.ClientResponse(http.StatusBadRequest, "could not make the order", nil, err.Error())
 		c.JSON(http.StatusBadRequest, errRes)
 		return
 	}
+	fmt.Println("check here")
+
 	succRes := response.ClientResponse(http.StatusOK, "successfully placed the order", nil, nil)
 	c.JSON(http.StatusOK, succRes)
 }

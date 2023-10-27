@@ -21,4 +21,7 @@ type OrderRepository interface {
 	GetOrderDetailsByID(orderID uint) (domain.UserorderResponse, error)
 
 	GetOrdersByStatus(status string) ([]domain.Order, error)
+
+	CreateNewWallet(userID int) (int, error)
+	FindWalletIdFromUserID(userId int) (int, error)
 }
