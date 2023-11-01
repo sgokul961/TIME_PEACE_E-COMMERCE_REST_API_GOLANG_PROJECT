@@ -55,7 +55,7 @@ func (ad *AdminHandler) LoginHandler(c *gin.Context) {
 // @Tags			Admin
 // @Accept			json
 // @Produce		json
-// @Security		Bearer
+// @Security		BearerTokenAuth
 // @Param			id	query		string	true	"user-id"
 // @Success		200	{object}	response.Response{}
 // @Failure		500	{object}	response.Response{}
@@ -78,7 +78,7 @@ func (ad *AdminHandler) BlockUser(c *gin.Context) {
 // @Tags			Admin
 // @Accept			json
 // @Produce		json
-// @Security		Bearer
+// @Security BearerTokenAuth
 // @Param			id	query		string	true	"user-id"
 // @Success		200	{object}	response.Response{}
 // @Failure		500	{object}	response.Response{}
@@ -103,8 +103,9 @@ func (ad *AdminHandler) UnblockUser(c *gin.Context) {
 // @Tags			Admin
 // @Accept			json
 // @Produce		json
-// @Security		Bearer
-// @Param			page	query		string	true	"Page number"
+// @Security BearerTokenAuth
+// @Param			page	query		int	true	"Page number"
+// @param           count    query      int     true    "count"
 // @Success		200		{object}	response.Response{}
 // @Failure		500		{object}	response.Response{}
 // @Router			/admin/users/getusers [get]
@@ -136,6 +137,16 @@ func (ad *AdminHandler) GetUsers(c *gin.Context) {
 
 }
 
+// @Summary		Orderstatus
+// @Description	Orderstatus handler for timepeace admins
+// @Tags			Admin
+// @Accept			json
+// @Produce		json
+// @Security BearerTokenAuth
+// @Param			order_status	query  string	true	"order_status"
+// @Success		200		{object}	response.Response{}
+// @Failure		500		{object}	response.Response{}
+// @Router			/admin/orders/status [get]
 func (i *AdminHandler) Orderstatus(ctx *gin.Context) {
 
 	status := ctx.Query("order_status")

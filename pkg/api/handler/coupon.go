@@ -24,7 +24,7 @@ func NewCouponHandler(use usecaseInterfaces.CouponUseCase) *CouponHAndler {
 // @Accept			json
 // @Produce		    json
 // @Param			coupon	body	models.Coupons	true	"coupon"
-// @Security		Bearer
+// @Security		BearerTokenAuth
 // @Success		200	{object}	response.Response{}
 // @Failure		500	{object}	response.Response{}
 // @Router			/admin/coupon/create [post]
@@ -52,7 +52,7 @@ func (coup *CouponHAndler) CreateNewCoupon(c *gin.Context) {
 // @Accept			json
 // @Produce		    json
 // @Param			id	query	string	true	"id"
-// @Security		Bearer
+// @Security		BearerTokenAuth
 // @Success		200	{object}	response.Response{}
 // @Failure		500	{object}	response.Response{}
 // @Router			/admin/coupons/delete [delete]

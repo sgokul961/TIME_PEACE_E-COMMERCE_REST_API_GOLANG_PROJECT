@@ -72,6 +72,16 @@ func (u *UserHandler) UserSignUp(c *gin.Context) {
 	c.JSON(http.StatusCreated, successRes)
 
 }
+
+// @Summary		User Login
+// @Description	user can log in by giving their details
+// @Tags			User
+// @Accept			json
+// @Produce		    json
+// @Param			login  body  models.UserLogin  true	"login"
+// @Success		200	{object}	response.Response{}
+// @Failure		500	{object}	response.Response{}
+// @Router			/user/login [post]
 func (u *UserHandler) LoginHandler(c *gin.Context) {
 
 	var user models.UserLoign
@@ -84,7 +94,7 @@ func (u *UserHandler) LoginHandler(c *gin.Context) {
 	}
 
 	err := validator.New().Struct(user)
-	if err != nil {
+	if err != nil {  
 		errRes := response.ClientResponse(http.StatusBadRequest, "constrains not satisfied", nil, err.Error())
 		c.JSON(http.StatusBadRequest, errRes)
 		return

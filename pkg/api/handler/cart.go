@@ -19,6 +19,16 @@ func NewCartHandler(usecase usecaseInterfaces.CartUseCase) *CartHandler {
 	}
 }
 
+// @Summary		Add To Cart
+// @Description	Add products to carts  for the purchase
+// @Tags			User
+// @Accept			json
+// @Produce		json
+// @Param			cart	body	models.AddToCart	true	"Add To Cart"
+// @Security		BearerTokenAuth
+// @Success		200	{object}	response.Response{}
+// @Failure		500	{object}	response.Response{}
+// @Router			/user/home/add-to-cart [post]
 func (i *CartHandler) AddToCart(c *gin.Context) {
 	var model models.AddToCart
 

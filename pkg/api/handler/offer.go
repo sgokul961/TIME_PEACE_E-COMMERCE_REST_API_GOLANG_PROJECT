@@ -24,7 +24,7 @@ func NewOfferHandler(usecase usecaseInterfaces.OfferUseCase) *OfferHandler {
 // @Accept			json
 // @Produce		    json
 // @Param			offer	body	models.OfferMaking	true	"offer"
-// @Security		Bearer
+// @Security		BearerTokenAuth
 // @Success		200	{object}	response.Response{}
 // @Failure		500	{object}	response.Response{}
 // @Router			/admin/offers/add [post]

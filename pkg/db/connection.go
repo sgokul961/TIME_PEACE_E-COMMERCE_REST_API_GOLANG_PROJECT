@@ -44,7 +44,7 @@ func CheckAndCreateAdmin(db *gorm.DB) {
 	var count int64
 	db.Model(&domain.Admin{}).Count(&count)
 	if count == 0 {
-		password := "patek"
+		password := "patek@123"
 		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 		if err != nil {
 			return

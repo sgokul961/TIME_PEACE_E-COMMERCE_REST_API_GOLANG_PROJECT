@@ -1,4 +1,11 @@
 definitions:
+  models.AddToCart:
+    properties:
+      inventory_id:
+        type: integer
+      user_id:
+        type: integer
+    type: object
   models.AdminLogin:
     properties:
       email:
@@ -106,7 +113,7 @@ paths:
           schema:
             $ref: '#/definitions/response.Response'
       security:
-      - Bearer: []
+      - BearerTokenAuth: []
       summary: Add Coupon
       tags:
       - Admin
@@ -134,7 +141,7 @@ paths:
           schema:
             $ref: '#/definitions/response.Response'
       security:
-      - Bearer: []
+      - BearerTokenAuth: []
       summary: Make Coupon ad invalid
       tags:
       - Admin
@@ -162,19 +169,19 @@ paths:
           schema:
             $ref: '#/definitions/response.Response'
       security:
-      - Bearer: []
+      - BearerTokenAuth: []
       summary: Add Offer
       tags:
       - Admin
-  /admin/users:
+  /admin/orders/status:
     get:
       consumes:
       - application/json
-      description: Retrieve users with pagination
+      description: Orderstatus handler for timepeace admins
       parameters:
-      - description: Page number
+      - description: order_status
         in: query
-        name: page
+        name: order_status
         required: true
         type: string
       produces:
@@ -189,8 +196,8 @@ paths:
           schema:
             $ref: '#/definitions/response.Response'
       security:
-      - Bearer: []
-      summary: Get Users
+      - BearerTokenAuth: []
+      summary: Orderstatus
       tags:
       - Admin
   /admin/users/block:
@@ -216,8 +223,40 @@ paths:
           schema:
             $ref: '#/definitions/response.Response'
       security:
-      - Bearer: []
+      - BearerTokenAuth: []
       summary: Block User
+      tags:
+      - Admin
+  /admin/users/getusers:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve users with pagination
+      parameters:
+      - description: Page number
+        in: query
+        name: page
+        required: true
+        type: integer
+      - description: count
+        in: query
+        name: count
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerTokenAuth: []
+      summary: Get Users
       tags:
       - Admin
   /admin/users/unblock:
@@ -243,10 +282,38 @@ paths:
           schema:
             $ref: '#/definitions/response.Response'
       security:
-      - Bearer: []
+      - BearerTokenAuth: []
       summary: UnBlock an existing user
       tags:
       - Admin
+  /user/home/add-to-cart:
+    post:
+      consumes:
+      - application/json
+      description: Add products to carts  for the purchase
+      parameters:
+      - description: Add To Cart
+        in: body
+        name: cart
+        required: true
+        schema:
+          $ref: '#/definitions/models.AddToCart'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerTokenAuth: []
+      summary: Add To Cart
+      tags:
+      - User
   /user/signup:
     post:
       consumes:

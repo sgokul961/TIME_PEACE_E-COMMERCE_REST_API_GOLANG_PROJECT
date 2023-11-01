@@ -61,7 +61,7 @@ const docTemplate = `{
             "post": {
                 "security": [
                     {
-                        "Bearer": []
+                        "BearerTokenAuth": []
                     }
                 ],
                 "description": "Admin can add new coupons",
@@ -106,7 +106,7 @@ const docTemplate = `{
             "delete": {
                 "security": [
                     {
-                        "Bearer": []
+                        "BearerTokenAuth": []
                     }
                 ],
                 "description": "Admin can make the coupons as invalid so that users cannot use that particular coupon",
@@ -149,7 +149,7 @@ const docTemplate = `{
             "post": {
                 "security": [
                     {
-                        "Bearer": []
+                        "BearerTokenAuth": []
                     }
                 ],
                 "description": "Admin can add new offers forspecified categories",
@@ -190,14 +190,14 @@ const docTemplate = `{
                 }
             }
         },
-        "/admin/users": {
+        "/admin/orders/status": {
             "get": {
                 "security": [
                     {
-                        "Bearer": []
+                        "BearerTokenAuth": []
                     }
                 ],
-                "description": "Retrieve users with pagination",
+                "description": "Orderstatus handler for timepeace admins",
                 "consumes": [
                     "application/json"
                 ],
@@ -207,12 +207,12 @@ const docTemplate = `{
                 "tags": [
                     "Admin"
                 ],
-                "summary": "Get Users",
+                "summary": "Orderstatus",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Page number",
-                        "name": "page",
+                        "description": "order_status",
+                        "name": "order_status",
                         "in": "query",
                         "required": true
                     }
@@ -237,7 +237,7 @@ const docTemplate = `{
             "post": {
                 "security": [
                     {
-                        "Bearer": []
+                        "BearerTokenAuth": []
                     }
                 ],
                 "description": "using this handler admins can block an user",
@@ -276,11 +276,61 @@ const docTemplate = `{
                 }
             }
         },
+        "/admin/users/getusers": {
+            "get": {
+                "security": [
+                    {
+                        "BearerTokenAuth": []
+                    }
+                ],
+                "description": "Retrieve users with pagination",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Get Users",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "count",
+                        "name": "count",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/admin/users/unblock": {
             "post": {
                 "security": [
                     {
-                        "Bearer": []
+                        "BearerTokenAuth": []
                     }
                 ],
                 "description": "UnBlock user",
@@ -301,6 +351,51 @@ const docTemplate = `{
                         "name": "id",
                         "in": "query",
                         "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/user/home/add-to-cart": {
+            "post": {
+                "security": [
+                    {
+                        "BearerTokenAuth": []
+                    }
+                ],
+                "description": "Add products to carts  for the purchase",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "Add To Cart",
+                "parameters": [
+                    {
+                        "description": "Add To Cart",
+                        "name": "cart",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.AddToCart"
+                        }
                     }
                 ],
                 "responses": {
@@ -361,6 +456,17 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "models.AddToCart": {
+            "type": "object",
+            "properties": {
+                "inventory_id": {
+                    "type": "integer"
+                },
+                "user_id": {
+                    "type": "integer"
+                }
+            }
+        },
         "models.AdminLogin": {
             "type": "object",
             "required": [
