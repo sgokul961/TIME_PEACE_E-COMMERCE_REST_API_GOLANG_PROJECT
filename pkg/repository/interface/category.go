@@ -11,4 +11,5 @@ type CategoryRepository interface {
 	DeleteCategory(categoryID string) error
 	CheckCategories(category domain.Category) error
 	GetCategories() ([]domain.Category, error)
+	CheckCategoryExistence(categoryName string) (bool, error)
 }

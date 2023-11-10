@@ -18,9 +18,21 @@ func NewCategoryRepository(DB *gorm.DB) interfaces.CategoryRepository {
 	return &categoryRepository{DB: DB}
 }
 func (p *categoryRepository) AddCategory(c domain.Category) (domain.Category, error) {
+	if c.Category == "" {
+		return domain.Category{}, errors.New("category name cannot be empty")
+	}
+
+	// Check if the category already exists
+	exists, err := p.CheckCategoryExistence(c.Category)
+	if err != nil {
+		return domain.Category{}, err
+	}
+	if exists {
+		return domain.Category{}, errors.New("category already exists")
+	}
 
 	var b string
-	err := p.DB.Raw("INSERT INTO categories (category) VALUES (?) RETURNING category", c.Category).Scan(&b).Error
+	err = p.DB.Raw("INSERT INTO categories (category) VALUES (?) RETURNING category", c.Category).Scan(&b).Error
 	if err != nil {
 		return domain.Category{}, err
 	}
@@ -112,4 +124,12 @@ func (c *categoryRepository) GetCategories() ([]domain.Category, error) {
 	}
 	return model, err
 
+}
+func (p *categoryRepository) CheckCategoryExistence(categoryName string) (bool, error) {
+	var count int
+	err := p.DB.Raw(`SELECT COUNT(*) FROM categories WHERE category = ?`, categoryName).Scan(&count).Error
+	if err != nil {
+		return false, err
+	}
+	return count > 0, nil
 }
