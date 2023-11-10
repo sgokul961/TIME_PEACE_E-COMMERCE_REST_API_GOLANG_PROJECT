@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/jung-kurt/gofpdf"
@@ -36,6 +37,9 @@ func (i *orderUseCase) OrderItemsFromCart(userid int, addressid int, paymentid i
 
 	if err != nil {
 		return err
+	}
+	if cart == nil {
+		return errors.New("cart is empty order not possible")
 	}
 	var total float64
 	for _, v := range cart {

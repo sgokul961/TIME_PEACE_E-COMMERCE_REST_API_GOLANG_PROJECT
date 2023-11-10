@@ -43,7 +43,6 @@ func (h *helper) AddImageToS3(file *multipart.FileHeader) (string, error) {
 
 	cfg, err := con.LoadDefaultConfig(context.TODO(), con.WithRegion("ap-south-1"))
 	if err != nil {
-		fmt.Println("configuration error:", err)
 		return "", err
 	}
 
@@ -53,7 +52,6 @@ func (h *helper) AddImageToS3(file *multipart.FileHeader) (string, error) {
 
 	f, openErr := file.Open()
 	if openErr != nil {
-		fmt.Println("opening error:", openErr)
 		return "", openErr
 	}
 	defer f.Close()
@@ -66,7 +64,6 @@ func (h *helper) AddImageToS3(file *multipart.FileHeader) (string, error) {
 	})
 
 	if uploadErr != nil {
-		fmt.Println("uploading error:", uploadErr)
 		return "", uploadErr
 	}
 

@@ -43,7 +43,7 @@ func (p *PaymentHandler) MakePaymentRazorPay(c *gin.Context) {
 func (p *PaymentHandler) VerifyPayment(c *gin.Context) {
 	OrderID := c.Query("order_id")
 	paymentID := c.Query("payment_id")
-	razorID := c.Query("razor_id")
+	razorID := c.Query("rhttps://gokulsajeev.shop/user/payment/razorpay?id=6&user_id=1azor_id")
 
 	err := p.usecase.VerifyPayment(paymentID, razorID, OrderID)
 

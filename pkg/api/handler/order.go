@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -52,6 +53,21 @@ func (i *OrdeHandler) OrderItemsFromCart(c *gin.Context) {
 		return
 	}
 	fmt.Println("check 4")
+	userID, ok := c.Get("id")
+	if !ok {
+		err := errors.New("cant get user id from context")
+		errRes := response.ClientResponse(http.StatusBadRequest, "could not order from cart", nil, err)
+		c.JSON(http.StatusBadRequest, errRes)
+		return
+	}
+	id, ok := userID.(int)
+	if !ok {
+		err := errors.New("user id is not of type int")
+		errRes := response.ClientResponse(http.StatusBadRequest, "could not order from cart", nil, err)
+		c.JSON(http.StatusBadRequest, errRes)
+		return
+	}
+
 	var order models.Order
 
 	if err := c.BindJSON(&order); err != nil {
@@ -60,7 +76,7 @@ func (i *OrdeHandler) OrderItemsFromCart(c *gin.Context) {
 		return
 	}
 	fmt.Println("check 3")
-	if err := i.orderUseCase.OrderItemsFromCart(order.UserID, order.AddressID, order.PaymentMethodID, couponId); err != nil {
+	if err := i.orderUseCase.OrderItemsFromCart(id, order.AddressID, order.PaymentMethodID, couponId); err != nil {
 		errRes := response.ClientResponse(http.StatusBadRequest, "could not make the order", nil, err.Error())
 		c.JSON(http.StatusBadRequest, errRes)
 		return

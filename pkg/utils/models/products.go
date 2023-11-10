@@ -31,7 +31,7 @@ type MakeOrder struct {
 }
 
 type Order struct {
-	UserID          int `json:"user_id"`
+	//          int `json:"user_id"`
 	AddressID       int `json:"address_id"`
 	PaymentMethodID int `json:"payment_id"`
 }

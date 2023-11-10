@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"mime/multipart"
 
-	"gokul.go/pkg/domain"
 	helper_interface "gokul.go/pkg/helper/interface"
 	interfaces "gokul.go/pkg/repository/interface"
 	"gokul.go/pkg/usecase/usecaseInterfaces"
@@ -21,21 +20,35 @@ func NewInventoryUseCase(repo interfaces.InventoryRepository, helper helper_inte
 
 	return &inventoryUseCase{
 		repository: repo,
-		helper:     helper}
+		helper:     helper,
+	}
 }
-func (i *inventoryUseCase) AddInventory(inventory models.AddInventories, image *multipart.FileHeader) (models.InventoryResponse, error) {
+func (i *inventoryUseCase) AddInventory(inventory models.AddInventories, image []*multipart.FileHeader) (models.InventoryResponse, error) {
 	// InventoryResponse, err := i.repository.AddInventory(inventory)
 	// if err != nil {
 	// 	return models.InventoryResponse{}, err
 	// }
 	// return InventoryResponse, nil
-	url, err := i.helper.AddImageToS3(image)
+	/*url, err := i.helper.AddImageToS3(image)*/
 
-	if err != nil {
-		return models.InventoryResponse{}, err
-	}
+	/*if err != nil {
+	return models.InventoryResponse{}, err*/
+	//}
 	//send url in databe
-	InventoryResponse, err := i.repository.AddInventory(inventory, url)
+
+	//images := image
+
+	var imageUrls []string
+
+	for _, fileHeader := range image {
+
+		Uploadurl, err := i.helper.AddImageToS3(fileHeader)
+		if err != nil {
+			return models.InventoryResponse{}, err
+		}
+		imageUrls = append(imageUrls, Uploadurl)
+	}
+	InventoryResponse, err := i.repository.AddInventory(inventory, imageUrls)
 	if err != nil {
 		return models.InventoryResponse{}, err
 	}
@@ -69,19 +82,36 @@ func (i *inventoryUseCase) DeleteInventory(inventoryID string) error {
 	}
 	return nil
 }
-func (i *inventoryUseCase) ShowIndividualProducts(id string) (domain.Inventories, error) {
 
-	product, err := i.repository.ShowIndividualProducts(id)
-
-	if err != nil {
-		return domain.Inventories{}, err
-	}
-	return product, nil
-}
-func (i *inventoryUseCase) ListProducts(page int, count int) ([]domain.Inventories, error) {
+func (i *inventoryUseCase) ListProducts(page int, count int) ([]models.InvResponse, error) {
 	productDetails, err := i.repository.ListProducts(page, count)
 	if err != nil {
-		return []domain.Inventories{}, err
+		return []models.InvResponse{}, err
 	}
-	return productDetails, nil
+	updatedproductDetails := make([]models.InvResponse, 0)
+	for _, k := range productDetails {
+		img, err := i.repository.GetImages(int(k.ID))
+		if err != nil {
+			return nil, err
+		}
+		k.Image = img
+		updatedproductDetails = append(updatedproductDetails, k)
+	}
+
+	return updatedproductDetails, nil
+
+}
+func (i *inventoryUseCase) GetIndividualProducts(inv_id int) (models.InvResponse, error) {
+
+	inv, err := i.repository.GetInventory(inv_id)
+	if err != nil {
+		return models.InvResponse{}, err
+	}
+	imgURL, err := i.repository.GetImages(inv_id)
+	if err != nil {
+		return models.InvResponse{}, err
+	}
+	inv.Image = imgURL
+	return inv, nil
+
 }

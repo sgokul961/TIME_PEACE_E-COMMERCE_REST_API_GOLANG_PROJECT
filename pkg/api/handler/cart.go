@@ -1,11 +1,12 @@
 package handler
 
 import (
+	"errors"
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"gokul.go/pkg/usecase/usecaseInterfaces"
-	"gokul.go/pkg/utils/models"
 	response "gokul.go/pkg/utils/response"
 )
 
@@ -30,14 +31,36 @@ func NewCartHandler(usecase usecaseInterfaces.CartUseCase) *CartHandler {
 // @Failure		500	{object}	response.Response{}
 // @Router			/user/home/add-to-cart [post]
 func (i *CartHandler) AddToCart(c *gin.Context) {
-	var model models.AddToCart
-
-	if err := c.BindJSON(&model); err != nil {
-		errRes := response.ClientResponse(http.StatusBadRequest, "feilds provided are in wrong format", nil, err.Error())
-		c.JSON(http.StatusBadRequest, errRes)
+	inventoryID := c.Query("inventory_id")
+	inv_id, err := strconv.Atoi(inventoryID)
+	if err != nil {
+		errorRes := response.ClientResponse(http.StatusBadRequest, "inv_id not in right format", nil, err.Error())
+		c.JSON(http.StatusBadRequest, errorRes)
 		return
 	}
-	if err := i.usecase.AddToCart(model.UserID, model.InventoryID); err != nil {
+	userIDAny, ok := c.Get("id")
+	if !ok {
+		err := errors.New("cant get user id from context")
+		errRes := response.ClientResponse(http.StatusBadRequest, "could not add the cart", nil, err)
+		c.JSON(http.StatusBadRequest, errRes)
+		return
+
+	}
+	userID, ok := userIDAny.(int)
+	if !ok {
+		err := errors.New("cant get user id from context")
+		errRes := response.ClientResponse(http.StatusBadRequest, "could not add the cart", nil, err)
+		c.JSON(http.StatusBadRequest, errRes)
+		return
+
+	}
+
+	// if err := c.BindJSON(&model); err != nil {
+	// 	errRes := response.ClientResponse(http.StatusBadRequest, "feilds provided are in wrong format", nil, err.Error())
+	// 	c.JSON(http.StatusBadRequest, errRes)
+	// 	return
+	// }
+	if err := i.usecase.AddToCart(inv_id, userID); err != nil {
 		errRes := response.ClientResponse(http.StatusBadRequest, "could not add the cart", nil, err.Error())
 		c.JSON(http.StatusBadRequest, errRes)
 		return
@@ -46,23 +69,23 @@ func (i *CartHandler) AddToCart(c *gin.Context) {
 	c.JSON(http.StatusOK, successRes)
 }
 
-// func (i *CartHandler) CheckOut(c *gin.Context) {
+func (i *CartHandler) CheckOut(c *gin.Context) {
 
-// 	id, err := strconv.Atoi(c.Query("id"))
-// 	if err != nil {
-// 		errorRes := response.ClientResponse(http.StatusBadRequest, "user_id not in right format", nil, err.Error())
-// 		c.JSON(http.StatusBadRequest, errorRes)
-// 		return
-// 	}
+	id, err := strconv.Atoi(c.Query("id"))
+	if err != nil {
+		errorRes := response.ClientResponse(http.StatusBadRequest, "user_id not in right format", nil, err.Error())
+		c.JSON(http.StatusBadRequest, errorRes)
+		return
+	}
 
-// 	products, err := i.usecase.CheckOut(id)
-// 	if err != nil {
-// 		errorRes := response.ClientResponse(http.StatusBadRequest, "could not open checkout", nil, err.Error())
-// 		c.JSON(http.StatusBadRequest, errorRes)
-// 		return
-// 	}
-// 	successRes := response.ClientResponse(http.StatusOK, "Successfully got all records", products, nil)
-// 	c.JSON(http.StatusOK, successRes)
-// }
+	products, err := i.usecase.CheckOut(id)
+	if err != nil {
+		errorRes := response.ClientResponse(http.StatusBadRequest, "could not open checkout", nil, err.Error())
+		c.JSON(http.StatusBadRequest, errorRes)
+		return
+	}
+	successRes := response.ClientResponse(http.StatusOK, "Successfully got all records", products, nil)
+	c.JSON(http.StatusOK, successRes)
+}
 
 //------mind checkout while doing ---------------commanding//

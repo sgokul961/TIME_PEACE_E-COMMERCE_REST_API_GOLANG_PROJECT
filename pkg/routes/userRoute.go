@@ -26,8 +26,8 @@ func UserRoutes(engine *gin.RouterGroup, userHandler *handler.UserHandler, otpHa
 		home := engine.Group("/home")
 		{
 			home.GET("/product", inventoryHandler.ListProducts)
-			home.GET("/products_show", inventoryHandler.ShowIndividualProducts)
 			home.POST("/add-to-cart", cartHandler.AddToCart)
+			home.GET("/getproduct", inventoryHandler.GetIndividualProducts)
 
 		}
 

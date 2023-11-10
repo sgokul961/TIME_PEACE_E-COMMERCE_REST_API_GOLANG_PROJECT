@@ -43,8 +43,15 @@ func UserAuthMiddleware(c *gin.Context) {
 		c.Abort()
 		return
 	}
+	id, ok := claims["id"].(float64)
+	if !ok || id == 0 {
+		c.JSON(http.StatusForbidden, gin.H{"error": "error in retriving id"})
+		c.Abort()
+		return
+	}
 
 	c.Set("role", role)
+	c.Set("id", int(id))
 
 	c.Next()
 }

@@ -92,3 +92,24 @@ func (c *categoryRepository) DeleteCategory(categoryID string) error {
 	}
 	return nil
 }
+func (c *categoryRepository) CheckCategories(category domain.Category) error {
+
+	query := `SELECT COUNT(*) FROM categories WHERE category=$1`
+	var count int
+	if err := c.DB.Raw(query, category.Category).Scan(&count).Error; err != nil {
+		return err
+	}
+	if count > 0 {
+		return errors.New("there is already a category like this")
+	}
+	return nil
+}
+func (c *categoryRepository) GetCategories() ([]domain.Category, error) {
+	var model []domain.Category
+	err := c.DB.Raw(`SELECT *FROM categories`).Scan(&model).Error
+	if err != nil {
+		return []domain.Category{}, err
+	}
+	return model, err
+
+}

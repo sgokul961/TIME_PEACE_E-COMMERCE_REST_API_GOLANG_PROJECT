@@ -72,3 +72,16 @@ func (cat *CategoryHandler) DeleteCategory(c *gin.Context) {
 	successRes := response.ClientResponse(http.StatusOK, "Sucessfully DELETED the category", nil, nil)
 	c.JSON(http.StatusOK, successRes)
 }
+
+// ---------------------------------get categories------------------------------------------------//
+func (cat *CategoryHandler) GetCategories(c *gin.Context) {
+	categories, err := cat.categoryUseCase.GetCategories()
+	if err != nil {
+		errRes := response.ClientResponse(http.StatusBadRequest, "cannot get categories ", nil, err.Error())
+		c.JSON(http.StatusBadRequest, errRes)
+		return
+	}
+	successRes := response.ClientResponse(http.StatusOK, "Sucessfully got all the categories", categories, nil)
+	c.JSON(http.StatusOK, successRes)
+
+}

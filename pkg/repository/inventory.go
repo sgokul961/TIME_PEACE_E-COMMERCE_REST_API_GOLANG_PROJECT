@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"strconv"
 
-	"gokul.go/pkg/domain"
 	interfaces "gokul.go/pkg/repository/interface"
 	"gokul.go/pkg/utils/models"
 	"gorm.io/gorm"
@@ -19,25 +18,35 @@ func NewInventoryRepository(DB *gorm.DB) interfaces.InventoryRepository {
 	return &inventoryRepository{DB: DB}
 
 }
-func (i *inventoryRepository) AddInventory(inventory models.AddInventories, url string) (models.InventoryResponse, error) {
+func (i *inventoryRepository) AddInventory(inventory models.AddInventories, images []string) (models.InventoryResponse, error) {
 
-	//var id uint
-	query := `INSERT INTO inventories (category_id,product_name,size,stock,price,image)
-	VALUES(?, ?, ?, ?, ?, ?);`
+	var product models.InventoryResponse
+	query := `INSERT INTO inventories (category_id,product_name,size,stock,price)
+	VALUES(?, ?, ?, ?, ?) RETURNING id,stock;`
 
-	i.DB.Exec(query, inventory.CategoryID, inventory.ProductName, inventory.Size, inventory.Stock, inventory.Price, url)
+	err := i.DB.Raw(query, inventory.CategoryID, inventory.ProductName, inventory.Size, inventory.Stock, inventory.Price).Scan(&product).Error
 
-	var InventoryResponse models.InventoryResponse
+	// var InventoryResponse models.InventoryResponse
 
-	// i.DB.Raw(`SELECT
-	//     id as product_id,
-	//     stock
-	// FROM
-	//     inventories
-	// WHERE
-	//     id=?`, id).Scan(&InventoryResponse)
+	// // i.DB.Raw(`SELECT
+	// //     id as product_id,
+	// //     stock
+	// // FROM
+	// //     inventories
+	// // WHERE
+	// //     id=?`, id).Scan(&InventoryResponse)
 
-	return InventoryResponse, nil
+	// return InventoryResponse, nil
+	if err != nil {
+		return models.InventoryResponse{}, err
+	}
+	for _, image := range images {
+		if err := i.DB.Exec(`INSERT INTO images  (inventory_id,image_url) VALUES (?,?)`, product.Id, image).Error; err != nil {
+			return models.InventoryResponse{}, err
+		}
+
+	}
+	return product, nil
 
 }
 func (i *inventoryRepository) CheckInventory(pid uint) (bool, error) {
@@ -75,7 +84,7 @@ func (i *inventoryRepository) UpdateInventory(pid uint, stock int) (models.Inven
 		fmt.Println("debug:1")
 		return models.InventoryResponse{}, err
 	}
-	newdetails.ProductID = pid
+	newdetails.Id = pid
 	newdetails.Stock = newstock
 
 	fmt.Println(newdetails)
@@ -96,33 +105,21 @@ func (i *inventoryRepository) DeleteInventory(inventoryID string) error {
 	}
 	return nil
 }
-func (i *inventoryRepository) ShowIndividualProducts(id string) (domain.Inventories, error) {
-	pid, error := strconv.Atoi(id)
-	if error != nil {
-		return domain.Inventories{}, error
-	}
-	var product domain.Inventories
-	err := i.DB.Raw(`
-	SELECT *FROM inventories WHERE inventories.id =  ?`, uint(pid)).Scan(&product).Error
-	if err != nil {
-		return domain.Inventories{}, errors.New("error retrived record")
 
-	}
-	return product, nil
-}
-func (ad *inventoryRepository) ListProducts(page int, count int) ([]domain.Inventories, error) {
+func (ad *inventoryRepository) ListProducts(page int, count int) ([]models.InvResponse, error) {
 	//pagination pourose
 
 	if page == 0 {
 		page = 1
 	}
 	offset := (page - 1) * count
-	var productDetails []domain.Inventories
+	var productDetails []models.InvResponse
 
 	if err := ad.DB.Raw("SELECT id ,category_id,product_name,size ,stock,price FROM inventories limit ? offset ?", count, offset).Scan(&productDetails).Error; err != nil {
-		return []domain.Inventories{}, err
+		return []models.InvResponse{}, err
 
 	}
+
 	return productDetails, nil
 }
 func (i *inventoryRepository) CheckStock(pid int) (int, error) {
@@ -131,4 +128,19 @@ func (i *inventoryRepository) CheckStock(pid int) (int, error) {
 		return 0, err
 	}
 	return l, nil
+}
+func (i *inventoryRepository) GetInventory(inv_id int) (models.InvResponse, error) {
+	var inv models.InvResponse
+	if err := i.DB.Raw(`SELECT id,category_id,product_name,size ,stock,price  FROM inventories WHERE id =? `, inv_id).Scan(&inv).Error; err != nil {
+		return models.InvResponse{}, err
+	}
+	return inv, nil
+}
+func (i *inventoryRepository) GetImages(inv_id int) ([]string, error) {
+	var url []string
+	if err := i.DB.Raw(`SELECT image_url FROM Images WHERE inventory_id=?`, inv_id).Scan(&url).Error; err != nil {
+		return url, err
+	}
+	return url, nil
+
 }

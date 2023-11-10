@@ -20,6 +20,10 @@ func NewCategoryUseCase(repo interfaces.CategoryRepository) usecaseInterfaces.Ca
 	}
 }
 func (cat *categoryUseCase) AddCategory(category domain.Category) (domain.Category, error) {
+
+	if err := cat.repository.CheckCategories(category); err != nil {
+		return domain.Category{}, err
+	}
 	productResponse, err := cat.repository.AddCategory(category)
 
 	if err != nil {
@@ -61,4 +65,11 @@ func (cat *categoryUseCase) DeleteCategory(categoryID string) error {
 		return err
 	}
 	return nil
+}
+func (c *categoryUseCase) GetCategories() ([]domain.Category, error) {
+	categories, err := c.repository.GetCategories()
+	if err != nil {
+		return []domain.Category{}, err
+	}
+	return categories, nil
 }

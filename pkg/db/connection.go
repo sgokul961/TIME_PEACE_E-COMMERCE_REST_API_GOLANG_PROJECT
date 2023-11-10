@@ -34,6 +34,7 @@ func ConnectDatabase(cfg config.Config) (*gorm.DB, error) {
 	db.AutoMigrate(domain.Coupons{})
 	db.AutoMigrate(domain.Offer{})
 	db.AutoMigrate(domain.Wallet{})
+	db.AutoMigrate(&domain.Images{})
 
 	CheckAndCreateAdmin(db)
 
