@@ -19,7 +19,7 @@ func NewCategoryRepository(DB *gorm.DB) interfaces.CategoryRepository {
 }
 func (p *categoryRepository) AddCategory(c domain.Category) (domain.Category, error) {
 	if c.Category == "" {
-		return domain.Category{}, errors.New("category name cannot be empty")
+		return domain.Category{}, errors.New("category name can't be empty")
 	}
 
 	// Check if the category already exists
