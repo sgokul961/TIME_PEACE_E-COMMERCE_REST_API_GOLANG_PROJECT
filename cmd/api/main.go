@@ -39,9 +39,9 @@ func main() {
 	docs.SwaggerInfo.Title = "TIME-PEACE"
 	docs.SwaggerInfo.Description = "STEP INTO THE WORLD OF FASION WITH UNIQUE STATEMENT PIECS.."
 	docs.SwaggerInfo.Version = "1.0"
-	docs.SwaggerInfo.Host = "localhost:3000"
+	docs.SwaggerInfo.Host = "gokulsajeev.shop"
 	docs.SwaggerInfo.BasePath = ""
-	docs.SwaggerInfo.Schemes = []string{"http"}
+	docs.SwaggerInfo.Schemes = []string{"http", "https"}
 
 	server, diErr := di.InitializeAPI(config)
 
