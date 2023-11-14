@@ -557,9 +557,9 @@ const docTemplate = `{
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0.0",
-	Host:             "",
+	Host:             "gokulsajeev.shop",
 	BasePath:         "",
-	Schemes:          []string{},
+	Schemes:          []string{"http","https"},
 	Title:            "Go + Gin E-Commerce API",
 	Description:      "",
 	InfoInstanceName: "swagger",
