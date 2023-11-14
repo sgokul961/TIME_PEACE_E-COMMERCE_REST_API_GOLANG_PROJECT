@@ -38,7 +38,7 @@ func main() {
 	// // swagger 2.0 Meta Information
 	docs.SwaggerInfo.Title = "TIME-PEACE"
 	docs.SwaggerInfo.Description = "STEP INTO THE WORLD OF FASION WITH UNIQUE STATEMENT PIECS.."
-	docs.SwaggerInfo.Version = "1.0"
+	docs.SwaggerInfo.Version = "2.0"
 	docs.SwaggerInfo.Host = "gokulsajeev.shop"
 	docs.SwaggerInfo.BasePath = ""
 	docs.SwaggerInfo.Schemes = []string{"http", "https"}
