@@ -128,7 +128,7 @@ func (u *userUseCase) LoginHandler(user models.UserLoign) (models.TokenUsers, er
 
 	user_details, err := u.userRepo.FindUserByEmail(user)
 
-	//fmt.Println("user details", user_details)
+	fmt.Println("user details", user_details)
 
 	if err != nil {
 		return models.TokenUsers{}, err

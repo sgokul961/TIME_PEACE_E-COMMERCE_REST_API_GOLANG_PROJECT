@@ -30,9 +30,9 @@ func (c *userDataBase) UserSignUp(user models.UserDetails, referral string) (mod
 func (c *userDataBase) CheckUserAvailability(email string) bool {
 	var count int
 
-	query := fmt.Sprintf("SELECT COUNT(*)FROM users WHERE EMAIL='%s'", email)
+	query := "SELECT COUNT(*) FROM users WHERE email=$1"
 
-	if err := c.DB.Raw(query).Scan(&count).Error; err != nil {
+	if err := c.DB.Raw(query, email).Scan(&count).Error; err != nil {
 		return false
 	}
 	return count > 0
@@ -41,7 +41,7 @@ func (c *userDataBase) FindUserByEmail(user models.UserLoign) (models.UserSignIn
 
 	var user_details models.UserSignInResponse
 
-	err := c.DB.Raw(`SELECT * FROM users where email = ? and blocked =false`, user.Email).Scan(&user_details).Error
+	err := c.DB.Raw("SELECT * FROM users WHERE email =$1 and blocked = false", user.Email).Scan(&user_details).Error
 
 	if err != nil {
 		return models.UserSignInResponse{}, errors.New("error checking user details")
@@ -54,7 +54,7 @@ func (cr *userDataBase) UserBlockStatus(email string) (bool, error) {
 
 	var isBlocked bool
 
-	err := cr.DB.Raw("SELECT blocked FROM users WHERE email = ?", email).Scan(&isBlocked).Error
+	err := cr.DB.Raw("SELECT blocked FROM users WHERE email = $1", email).Scan(&isBlocked).Error
 
 	if err != nil {
 		return false, err
@@ -130,16 +130,6 @@ func (ad *userDataBase) GetCartID(id int) (uint, error) {
 	}
 	return cart_id, nil
 }
-
-// func (ad *userDataBase) GetProductsInCart(cart_id uint) ([]uint, error) {
-
-// 	var cart_products []uint
-
-// 	if err := ad.DB.Raw("SELECT inventory_id FROM line_items WHERE cart_id=?", cart_id).Scan(&cart_products).Error; err != nil {
-// 		return nil, err
-// 	}
-// 	return cart_products, nil
-// }
 
 func (ad *userDataBase) GetProductsInCart(cart_id uint) ([]uint, error) {
 
