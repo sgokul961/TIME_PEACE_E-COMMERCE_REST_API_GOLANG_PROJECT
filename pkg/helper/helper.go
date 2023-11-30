@@ -19,6 +19,7 @@ import (
 	"gokul.go/pkg/config"
 	interfaces "gokul.go/pkg/helper/interface"
 	"gokul.go/pkg/utils/models"
+	"golang.org/x/crypto/bcrypt"
 )
 
 var client *twilio.RestClient
@@ -179,4 +180,16 @@ func (h *helper) GenerateRefferalCode() (string, error) {
 	encoded = encoded[:5]
 
 	return encoded, nil
+}
+func (h *helper) PasswordHashing(password string) (string, error) {
+
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), 10)
+
+	if err != nil {
+		return "", errors.New("internal server error")
+	}
+
+	hash := string(hashedPassword)
+	return hash, nil
+
 }

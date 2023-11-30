@@ -14,4 +14,5 @@ type Helper interface {
 	TwilioVerifyOTP(serviceID string, code string, phone string) error
 	GenerateTokenClients(user models.UserDeatilsResponse) (string, error)
 	GenerateRefferalCode() (string, error)
+	PasswordHashing(string) (string, error)
 }

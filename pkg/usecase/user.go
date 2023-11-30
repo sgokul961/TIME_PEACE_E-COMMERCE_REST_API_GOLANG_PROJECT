@@ -55,13 +55,13 @@ func (u *userUseCase) UserSignUp(user models.UserDetails, ref string) (models.To
 	}
 	//hash password since details are validated
 
-	hashePassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), 10)
+	hashePassword, err := u.helper.PasswordHashing(user.Password)
 
 	if err != nil {
-		return models.TokenUsers{}, errors.New("internal server error")
+		return models.TokenUsers{}, errors.New("ErrorHashingPassword")
 
 	}
-	user.Password = string(hashePassword)
+	user.Password = hashePassword
 
 	referral, err := u.helper.GenerateRefferalCode()
 
