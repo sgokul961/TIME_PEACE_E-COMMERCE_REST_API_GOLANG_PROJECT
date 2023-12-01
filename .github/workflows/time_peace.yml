@@ -44,5 +44,5 @@ jobs:
           echo "Connected to AWS EC2 instance"
           cd TIME_PEACE
           git pull
-          go build -o api ./cmd/api
+          go build -o build/bin ./cmd/api
           sudo systemctl restart myapp.service
