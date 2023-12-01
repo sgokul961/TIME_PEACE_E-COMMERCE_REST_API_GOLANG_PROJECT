@@ -45,11 +45,3 @@ jobs:
           git pull  || { echo "Failed to pull"; exit 1; }
           go build -o build/bin ./cmd/api
           sudo systemctl restart myapp.service || { echo "Failed to restart service"; exit 1; }
-
-
-    # - name: Send Email Notification
-    #   run: |
-    #         # Use secrets and environment variables for configuration
-    #         echo "Email content" | mail -s "Subject" $RECIPIENT_EMAIL
-    #         env:
-    #         RECIPIENT_EMAIL: ${{ secrets.EMAIL_RECIPIENT }}
