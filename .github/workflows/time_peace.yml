@@ -43,6 +43,6 @@ jobs:
         script: |
           echo "Connected to AWS EC2 instance"
           cd TIME_PEACE
-          git pull  || { echo "Failed to pull"; exit 1; }
+          git pull  
           go build -o build/bin ./cmd/api
           sudo systemctl restart myapp.service || { echo "Failed to restart service"; exit 1; }
