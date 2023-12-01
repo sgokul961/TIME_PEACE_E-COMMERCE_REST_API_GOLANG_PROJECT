@@ -28,20 +28,20 @@ jobs:
     - name: Test
       run: go test -v ./...
 
-  # deploy:
-  #   runs-on: ubuntu-latest
+  deploy:
+    runs-on: ubuntu-latest
     
    
-  #   steps:
-  #   - name: Deploy to AWS EC2
-  #     uses: appleboy/ssh-action@master
-  #     with:
-  #       host: ${{secrets.EC2_PUBLIC_IP}}
-  #       username: ubuntu
-  #       key: ${{secrets.EC2_SSH_KEY}}
-  #       script: |
-  #         echo "Connected to AWS EC2 instance"
-  #         cd TIME_PEACE
-  #         git pull  || { echo "Failed to pull"; exit 1; }
-  #         go build -o build/bin ./cmd/api
-  #         sudo systemctl restart myapp.service || { echo "Failed to restart service"; exit 1; }
+    steps:
+    - name: Deploy to AWS EC2
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{secrets.EC2_PUBLIC_IP}}
+        username: ubuntu
+        key: ${{secrets.EC2_SSH_KEY}}
+        script: |
+          echo "Connected to AWS EC2 instance"
+          cd TIME_PEACE
+          git pull  || { echo "Failed to pull"; exit 1; }
+          go build -o build/bin ./cmd/api
+          sudo systemctl restart myapp.service || { echo "Failed to restart service"; exit 1; }
