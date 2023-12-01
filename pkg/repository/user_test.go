@@ -274,4 +274,73 @@ func Test_UserBlockStatu(t *testing.T) {
 
 func Test_AddAddress(t *testing.T) {
 
+	type args struct {
+		id    int
+		input models.AddAddress
+	}
+
+	tests := []struct {
+		name    string
+		args    args
+		stub    func(sqlmock.Sqlmock)
+		wantErr error
+	}{
+		{
+			name: "adding the address",
+			args: args{input: models.AddAddress{
+				Name:      "gokul",
+				HouseName: "vettiyankal",
+				Street:    "west",
+				City:      "newyork",
+				State:     "kerala",
+				Pin:       "685565",
+			}, id: 1},
+
+			stub: func(sqlMock sqlmock.Sqlmock) {
+				expexctedQuery := `INSERT INTO addresses(users_id ,name ,house_name,street,city,state,pin)
+				VALUES($1, $2, $3, $4 ,$5, $6, $7) RETURNING id`
+				sqlMock.ExpectQuery(regexp.QuoteMeta(expexctedQuery)).WithArgs(1, "gokul", "vettiyankal", "west", "newyork", "kerala", "685565").
+					WillReturnRows(sqlmock.NewRows([]string{"id"}).AddRow(1))
+
+			},
+			wantErr: nil,
+		}, {
+			name: "cant add thge addresses",
+			args: args{input: models.AddAddress{
+				Name:      "gokul",
+				HouseName: "vettiyankal",
+				Street:    "west",
+				City:      "newyork",
+				State:     "kerala",
+				Pin:       "685565",
+			}, id: 1},
+			stub: func(sqlmock sqlmock.Sqlmock) {
+				expectedQuery := `INSERT INTO addresses(users_id ,name ,house_name,street,city,state,pin)
+				VALUES($1, $2, $3, $4 ,$5, $6, $7) 
+				RETURNING id`
+				sqlmock.ExpectQuery(regexp.QuoteMeta(expectedQuery)).WithArgs(1, "gokul", "vettiyankal", "west", "newyork", "kerala", "685565").
+					WillReturnError(errors.New("error adding address"))
+			},
+			wantErr: errors.New("error adding address"),
+		},
+	}
+	for _, tt := range tests {
+
+		t.Run(tt.name, func(t *testing.T) {
+			mockDB, mockSQL, _ := sqlmock.New()
+			defer mockDB.Close()
+
+			gormDB, _ := gorm.Open(postgres.New(postgres.Config{
+				Conn: mockDB,
+			}), &gorm.Config{})
+
+			tt.stub(mockSQL)
+			u := NewUserRepository(gormDB)
+
+			err := u.AddAddress(tt.args.id, tt.args.input)
+
+			assert.Equal(t, tt.wantErr, err)
+		})
+	}
+
 }

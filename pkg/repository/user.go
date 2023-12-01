@@ -71,7 +71,7 @@ func (i *userDataBase) AddAddress(id int, address models.AddAddress) error {
 	RETURNING id`, id, address.Name, address.HouseName, address.Street, address.City, address.State, address.Pin).Error
 
 	if err != nil {
-		return err
+		return errors.New("error adding address")
 	}
 	return nil
 
