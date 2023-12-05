@@ -272,74 +272,78 @@ func Test_UserBlockStatu(t *testing.T) {
 	}
 }
 
-// func Test_AddAddress(t *testing.T) {
+func Test_AddAddress(t *testing.T) {
 
-// 	type args struct {
-// 		id    int
-// 		input models.AddAddress
-// 	}
+	type args struct {
+		id    int
+		input models.AddAddress
+	}
 
-// 	tests := []struct {
-// 		name    string
-// 		args    args
-// 		stub    func(sqlmock.Sqlmock)
-// 		wantErr error
-// 	}{
-// 		{
-// 			name: "adding the address",
-// 			args: args{input: models.AddAddress{
-// 				Name:      "gokul",
-// 				HouseName: "vettiyankal",
-// 				Street:    "west",
-// 				City:      "newyork",
-// 				State:     "kerala",
-// 				Pin:       "685565",
-// 			}, id: 1},
+	tests := []struct {
+		name    string
+		args    args
+		stub    func(sqlmock.Sqlmock, args)
+		wantErr error
+	}{
+		{
+			name: "adding the address",
+			args: args{input: models.AddAddress{
+				Name:      "gokul",
+				HouseName: "vettiyankal",
+				Street:    "west",
+				City:      "newyork",
+				State:     "kerala",
+				Pin:       "685565",
+			}, id: 1},
 
-// 			stub: func(sqlMock sqlmock.Sqlmock) {
-// 				expexctedQuery := `INSERT INTO addresses(users_id ,name ,house_name,street,city,state,pin)
-// 				VALUES($1, $2, $3, $4 ,$5, $6, $7) RETURNING id`
-// 				sqlMock.ExpectQuery(regexp.QuoteMeta(expexctedQuery)).WithArgs(1, "gokul", "vettiyankal", "west", "newyork", "kerala", "685565").wil
+			stub: func(sqlMock sqlmock.Sqlmock, arg args) {
+				expectedQuery := `(?i)INSERT INTO addresses\(users_id ,name ,house_name,street,city,state,pin\)\s*VALUES\(\$1, \$2, \$3, \$4 ,\$5, \$6, \$7\)`
+				sqlMock.ExpectExec(expectedQuery).
+					WithArgs(1, "gokul", "vettiyankal", "west", "newyork", "kerala", "685565").
+					WillReturnResult(sqlmock.NewResult(1, 1))
 
-// 			},
-// 			wantErr: nil,
-// 		}, {
-// 			name: "cant add thge addresses",
-// 			args: args{input: models.AddAddress{
-// 				Name:      "gokul",
-// 				HouseName: "vettiyankal",
-// 				Street:    "west",
-// 				City:      "newyork",
-// 				State:     "kerala",
-// 				Pin:       "685565",
-// 			}, id: 1},
-// 			stub: func(sqlmock sqlmock.Sqlmock) {
-// 				expectedQuery := `INSERT INTO addresses(users_id ,name ,house_name,street,city,state,pin)
-// 				VALUES($1, $2, $3, $4 ,$5, $6, $7)
-// 				RETURNING id`
-// 				sqlmock.ExpectQuery(regexp.QuoteMeta(expectedQuery)).WithArgs(1, "gokul", "vettiyankal", "west", "newyork", "kerala", "685565").
-// 					WillReturnError(errors.New("error adding address"))
-// 			},
-// 			wantErr: errors.New("error adding address"),
-// 		},
-// 	}
-// 	for _, tt := range tests {
+			},
+			wantErr: nil,
+		},
+		{
+			name: "cant add the addresses",
+			args: args{input: models.AddAddress{
+				Name:      " ",
+				HouseName: " ",
+				Street:    " ",
+				City:      " ",
+				State:     " ",
+				Pin:       " ",
+			}, id: 1},
+			stub: func(sqlmock sqlmock.Sqlmock, arg args) {
+				expectedQuery := `(?i)INSERT INTO addresses\(users_id ,name ,house_name,street,city,state,pin\)\s*VALUES\(\$1, \$2, \$3, \$4 ,\$5, \$6, \$7\)`
+				sqlmock.ExpectExec(expectedQuery).
+					WithArgs(1, " ", " ", " ", " ", " ", " ").
+					WillReturnError(errors.New("error adding address"))
 
-// 		t.Run(tt.name, func(t *testing.T) {
-// 			mockDB, mockSQL, _ := sqlmock.New()
-// 			defer mockDB.Close()
+			},
+			wantErr: nil,
+		},
+	}
+	for _, tt := range tests {
 
-// 			gormDB, _ := gorm.Open(postgres.New(postgres.Config{
-// 				Conn: mockDB,
-// 			}), &gorm.Config{})
+		t.Run(tt.name, func(t *testing.T) {
+			fmt.Println("name", tt.name)
+			mockDB, mockSQL, _ := sqlmock.New()
+			defer mockDB.Close()
 
-// 			tt.stub(mockSQL)
-// 			u := NewUserRepository(gormDB)
+			gormDB, _ := gorm.Open(postgres.New(postgres.Config{
+				Conn: mockDB,
+			}), &gorm.Config{})
 
-// 			err := u.AddAddress(tt.args.id, tt.args.input)
+			tt.stub(mockSQL, tt.args)
+			u := NewUserRepository(gormDB)
 
-// 			assert.Equal(t, tt.wantErr, err)
-// 		})
-// 	}
+			err := u.AddAddress(tt.args.id, tt.args.input)
+			fmt.Println("actual error is ", err)
 
-// }
+			assert.Equal(t, tt.wantErr, err)
+		})
+	}
+
+}

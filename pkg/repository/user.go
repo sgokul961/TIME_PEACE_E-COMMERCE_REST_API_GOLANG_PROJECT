@@ -65,11 +65,9 @@ func (cr *userDataBase) UserBlockStatus(email string) (bool, error) {
 func (i *userDataBase) AddAddress(id int, address models.AddAddress) error {
 	fmt.Println(id, address.Name, address.HouseName, address.Street, address.City, address.State, address.Pin)
 
-	err := i.DB.Exec(`INSERT INTO addresses(users_id ,name ,house_name,street,city,state,pin)
-	VALUES($1, $2, $3, $4 ,$5, $6, $7)
-
-	RETURNING id`, id, address.Name, address.HouseName, address.Street, address.City, address.State, address.Pin).Error
-
+	err := i.DB.Raw(`INSERT INTO addresses(users_id ,name ,house_name,street,city,state,pin)
+	VALUES($1,$2,$3,$4,$5,$6,$7)`, id, address.Name, address.HouseName, address.Street, address.City, address.State, address.Pin).Error
+	fmt.Println("error created", err)
 	if err != nil {
 		return errors.New("error adding address")
 	}
