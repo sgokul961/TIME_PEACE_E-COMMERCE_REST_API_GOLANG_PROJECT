@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: timepeace-deployment
+  labels:
+    app: timepeace
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: timepeace
+  template:
+    metadata:
+      labels:
+        app: timepeace
+    spec:
+      containers:
+      - name: timepeace
+        image: gokulsajeev/docker_timepeace:latest
+        ports:
+        - containerPort: 3000
+        env:
+        - name: DB_PASSWORD 
+          valueFrom:
+            configMapKeyRef:
+              name: postgres-config
+              key: postgres-password
+        - name: DB_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: postgres-config
+              key: postgres-host
+        - name: DB_NAME
+          valueFrom:
+            configMapKeyRef:
+              name: postgres-config
+              key: postgres-db
+        - name: DB_USER
+          valueFrom:
+            configMapKeyRef:
+              name: postgres-config
+              key: postgres-user
+        - name: DB_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: postgres-config
+              key: postgres-port                  
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: timepeace-service
+spec:
+  type: NodePort
+  selector:
+    app: timepeace
+  ports:
+    - protocol: TCP
+      port: 3000
+      targetPort: 3000 
+      nodePort: 30100    
