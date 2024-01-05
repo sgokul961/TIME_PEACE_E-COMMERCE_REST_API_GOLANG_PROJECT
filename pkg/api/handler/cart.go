@@ -69,6 +69,16 @@ func (i *CartHandler) AddToCart(c *gin.Context) {
 	c.JSON(http.StatusOK, successRes)
 }
 
+// @Summary		Checkout section
+// @Description	Add products to carts  for the purchase
+// @Tags			User
+// @Accept			json
+// @Produce		    json
+// @Param			id	query	string	true	"id"
+// @Security		Bearer
+// @Success		200	{object}	response.Response{}
+// @Failure		500	{object}	response.Response{}
+// @Router			/user/check-out [get]
 func (i *CartHandler) CheckOut(c *gin.Context) {
 
 	id, err := strconv.Atoi(c.Query("id"))

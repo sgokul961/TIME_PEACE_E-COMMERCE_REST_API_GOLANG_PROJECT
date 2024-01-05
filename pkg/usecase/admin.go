@@ -26,7 +26,7 @@ func NewAdminUseCase(repo interfaces.AdminRepository, help helper_interface.Help
 
 func (ad *adminUseCase) LoginHandler(adminDetails models.AdminLogin) (domain.TokenAdmin, error) {
 
-	//getting details of the admin based on the emaim provided
+	//getting details of the admin based on the email provided
 
 	adminCompareDetails, err := ad.AdminRepository.LoginHandler(adminDetails)
 	if err != nil {

@@ -20,24 +20,23 @@ func NewInventoryHandler(usecase usecaseInterfaces.InventoryUseCase) *InventoryH
 	return &InventoryHandler{InventoryUseCase: usecase}
 }
 
+// @Summary		Add Inventory
+// @Description	Admin can add new  products
+// @Tags			Admin
+// @Accept			multipart/form-data
+// @Produce		    json
+// @Param			category_id		formData	string	true	"category_id"
+// @Param			product_name	formData	string	true	"product_name"
+// @Param			size		formData	string	true	"size"
+// @Param			price	formData	string	true	"price"
+// @Param			stock		formData	string	true	"stock"
+// @Param           image      formData     file   true   "images"
+// @Security		Bearer
+// @Success		200	{object}	response.Response{}
+// @Failure		500	{object}	response.Response{}
+// @Router			/admin/inventories/add [post]
 func (i *InventoryHandler) AddInventory(c *gin.Context) {
 
-	// var Inventory domain.Inventories
-
-	// if err := c.BindJSON(&Inventory); err != nil {
-	// 	errRes := response.ClientResponse(http.StatusBadRequest, "feilds provided are in wrong format", nil, err.Error())
-	// 	c.JSON(http.StatusBadRequest, errRes)
-	// 	return
-	// }
-	// InventoryResponse, err := i.InventoryUseCase.AddInventory(Inventory)
-
-	// if err != nil {
-	// 	errRes := response.ClientResponse(http.StatusBadRequest, "could not add the inventory", nil, err.Error())
-	// 	c.JSON(http.StatusBadRequest, errRes)
-	// 	return
-	// }
-	// successRes := response.ClientResponse(http.StatusOK, "successfully added inventory", InventoryResponse, nil)
-	// c.JSON(http.StatusOK, successRes)
 	var inventory models.AddInventories
 
 	categoryID, err := strconv.Atoi(c.Request.FormValue("category_id"))
@@ -107,6 +106,17 @@ func (i *InventoryHandler) AddInventory(c *gin.Context) {
 	c.JSON(http.StatusOK, successRes)
 
 }
+
+// @Summary		Update Stock
+// @Description	Admin can update stock of the inventories
+// @Tags			Admin
+// @Accept			json
+// @Produce		    json
+// @Param			add-stock	body	models.InventoryUpdate	true	"update stock"
+// @Security		Bearer
+// @Success		200	{object}	response.Response{}
+// @Failure		500	{object}	response.Response{}
+// @Router			/admin/inventories/update [put]
 func (i *InventoryHandler) UpdateInventory(c *gin.Context) {
 
 	var p models.InventoryUpdate
@@ -127,6 +137,17 @@ func (i *InventoryHandler) UpdateInventory(c *gin.Context) {
 	successRes := response.ClientResponse(http.StatusOK, "successfully updated the inventory stock", a, nil)
 	c.JSON(http.StatusOK, successRes)
 }
+
+// @Summary		Delete Inventory
+// @Description	Admin can delete a product
+// @Tags			Admin
+// @Accept			json
+// @Produce		    json
+// @Param			id	query	string	true	"id"
+// @Security		Bearer
+// @Success		200	{object}	response.Response{}
+// @Failure		500	{object}	response.Response{}
+// @Router			/admin/inventories/delete [delete]
 func (i *InventoryHandler) DeleteInventory(c *gin.Context) {
 
 	inventoryID := c.Query("id")

@@ -19,6 +19,17 @@ type OrdeHandler struct {
 func NewOrderHandler(useCase usecaseInterfaces.OrderUseCase) *OrdeHandler {
 	return &OrdeHandler{orderUseCase: useCase}
 }
+
+// @Summary		Get Orders
+// @Description	user can view the details of the orders
+// @Tags			User
+// @Accept			json
+// @Produce		    json
+// @Param			id	query	string	true	"id"
+// @Security		Bearer
+// @Success		200	{object}	response.Response{}
+// @Failure		500	{object}	response.Response{}
+// @Router			/user/profile/orders [get]
 func (i *OrdeHandler) GetOrders(c *gin.Context) {
 
 	idString := c.Query("id")
@@ -40,6 +51,7 @@ func (i *OrdeHandler) GetOrders(c *gin.Context) {
 	successRes := response.ClientResponse(http.StatusOK, "Successfully got all records", orders, nil)
 	c.JSON(http.StatusOK, successRes)
 }
+
 func (i *OrdeHandler) OrderItemsFromCart(c *gin.Context) {
 
 	idstring := c.Query("coupon-id")

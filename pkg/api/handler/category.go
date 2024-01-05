@@ -18,6 +18,17 @@ type CategoryHandler struct {
 func NewCategoryHandler(usecase usecaseInterfaces.CategoryUseCase) *CategoryHandler {
 	return &CategoryHandler{categoryUseCase: usecase}
 }
+
+// @Summary		Add Category
+// @Description	Admin can add new categories for products
+// @Tags			Admin
+// @Accept			json
+// @Produce		    json
+// @Param			category	body	domain.Category	true	"category"
+// @Security		Bearer
+// @Success		200	{object}	response.Response{}
+// @Failure		500	{object}	response.Response{}
+// @Router			/admin/category/add [post]
 func (cat *CategoryHandler) AddCategory(c *gin.Context) {
 
 	var category domain.Category
@@ -36,6 +47,17 @@ func (cat *CategoryHandler) AddCategory(c *gin.Context) {
 	successRes := response.ClientResponse(http.StatusOK, "successfully added category", CategoryResponse, nil)
 	c.JSON(http.StatusOK, successRes)
 }
+
+// @Summary		Update Category
+// @Description	Admin can update name of a category into new name
+// @Tags			Admin
+// @Accept			json
+// @Produce		    json
+// @Param			set_new_name	body	models.SetNewName	true	"set new name"
+// @Security		Bearer
+// @Success		200	{object}	response.Response{}
+// @Failure		500	{object}	response.Response{}
+// @Router			/admin/category/update [put]
 func (cat *CategoryHandler) UpdateCategory(c *gin.Context) {
 
 	var p models.SetNewName
@@ -56,6 +78,17 @@ func (cat *CategoryHandler) UpdateCategory(c *gin.Context) {
 	successRes := response.ClientResponse(http.StatusOK, "successfully renamed the category", a, nil)
 	c.JSON(http.StatusOK, successRes)
 }
+
+// @Summary		Delete Category
+// @Description	Admin can delete a category
+// @Tags			Admin
+// @Accept			json
+// @Produce		    json
+// @Param			id	query	string	true	"id"
+// @Security		Bearer
+// @Success		200	{object}	response.Response{}
+// @Failure		500	{object}	response.Response{}
+// @Router			/admin/category/delete [delete]
 func (cat *CategoryHandler) DeleteCategory(c *gin.Context) {
 
 	categoryID := c.Query("id")
